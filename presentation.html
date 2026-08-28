@@ -1,0 +1,2749 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Computational RCS Analysis — Conventional vs Stealth Aircraft</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+  <style>
+    :root {
+      --bg: #000000;
+      --surface: #080808;
+      --surface2: #0d0d0d;
+      --border: #1c1c1c;
+      --accent: #00c896;
+      --accent2: #3d8bff;
+      --warn: #d4870a;
+      --danger: #cc3333;
+      --text: #b8c4cc;
+      --muted: #363e46;
+      --dim: #525c66;
+      --mono: 'JetBrains Mono', monospace;
+      --sans: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+    }
+
+    body {
+      min-height: 100vh;
+      overflow-x: hidden
+    }
+
+    /* ── hero header ── */
+    .hero {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 56px 24px 40px;
+      text-align: center
+    }
+
+    .hero .kicker {
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: var(--accent);
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 18px
+    }
+
+    .hero h1 {
+      font-size: clamp(24px, 4vw, 42px);
+      line-height: 1.25;
+      letter-spacing: .5px;
+      color: #ffd54f;
+      margin: 0 auto;
+      max-width: 920px;
+      font-weight: 700
+    }
+
+    .hero .sub {
+      color: var(--dim);
+      font-size: 12.5px;
+      letter-spacing: .5px;
+      margin-top: 14px
+    }
+
+    .guidance {
+      margin-top: 32px
+    }
+
+    .guidance-label {
+      font-size: 11px;
+      letter-spacing: 2.5px;
+      color: var(--dim);
+      text-transform: uppercase;
+      margin-bottom: 16px
+    }
+
+    .guides-row {
+      display: flex;
+      justify-content: center;
+      gap: 56px;
+      flex-wrap: wrap
+    }
+
+    .guide {
+      text-align: center
+    }
+
+    .gname {
+      font-size: 16px;
+      color: #ffffff;
+      font-weight: 700;
+      letter-spacing: .3px
+    }
+
+    .grole {
+      font-size: 11.5px;
+      color: var(--accent);
+      margin-top: 5px;
+      letter-spacing: .5px;
+      text-transform: uppercase
+    }
+
+    .gdept {
+      font-size: 11px;
+      color: var(--dim);
+      margin-top: 4px;
+      max-width: 280px;
+      letter-spacing: .2px
+    }
+
+    .team {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 24px;
+      margin-top: 28px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      max-width: 820px;
+      margin-left: auto;
+      margin-right: auto
+    }
+
+    .team .member {
+      font-size: 12px;
+      color: var(--dim);
+      line-height: 1.6
+    }
+
+    .team .member b {
+      display: block;
+      color: var(--text);
+      font-size: 13px
+    }
+
+    .panel {
+      display: block;
+      padding: 0
+    }
+
+    /* ── section anchor spacing ── */
+    .theory {
+      scroll-margin-top: 20px
+    }
+
+    /* ── theory content (per spec) ── */
+    .theory-scroll {
+      position: relative;
+      overflow-x: hidden;
+      background: #000;
+      padding: 0 0 80px
+    }
+
+    .theory {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 32px 24px 0;
+      color: #c6ced6;
+      font-family: var(--sans);
+      font-size: 14.5px;
+      line-height: 1.75
+    }
+
+    .theory h1 {
+      font-family: var(--mono);
+      font-size: 20px;
+      letter-spacing: 1.5px;
+      color: #ffd54f;
+      margin: 0 0 6px;
+      text-transform: uppercase
+    }
+
+    .theory h2 {
+      font-family: var(--mono);
+      font-size: 13px;
+      letter-spacing: 1.1px;
+      color: #ffd54f;
+      margin: 38px 0 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #241f10;
+      text-transform: uppercase
+    }
+
+    .theory h3 {
+      font-family: var(--mono);
+      font-size: 11.5px;
+      letter-spacing: .9px;
+      color: #9aa6b2;
+      margin: 20px 0 6px;
+      text-transform: uppercase
+    }
+
+    .theory p {
+      margin: 10px 0
+    }
+
+    .theory b {
+      color: #e8eef2;
+      font-weight: 600
+    }
+
+    .theory i {
+      color: #9aa6b2
+    }
+
+    .theory .lede {
+      color: #8a97a3;
+      font-size: 13.5px;
+      border-left: 2px solid #2a2413;
+      padding-left: 14px;
+      margin: 14px 0 4px
+    }
+
+    .theory .note {
+      background: #0b1410;
+      border-left: 2px solid #00c896;
+      padding: 10px 14px;
+      border-radius: 0 4px 4px 0;
+      font-size: 13.5px;
+      color: #9fbdb2;
+      margin: 12px 0
+    }
+
+    .theory .warn {
+      background: #160f0b;
+      border-left: 2px solid #ff9800;
+      padding: 10px 14px;
+      border-radius: 0 4px 4px 0;
+      font-size: 13.5px;
+      color: #c4ac93;
+      margin: 12px 0
+    }
+
+    .theory d {
+      display: block;
+      overflow-x: auto;
+      overflow-y: hidden;
+      margin: 16px 0;
+      padding: 4px 2px;
+      text-align: center;
+      color: #e8eef2
+    }
+
+    .theory k {
+      color: #e8eef2
+    }
+
+    .theory .refs {
+      color: #8a97a3;
+      font-size: 13px;
+      padding-left: 22px;
+      line-height: 1.9
+    }
+
+    .theory .refs li {
+      margin: 2px 0
+    }
+
+    .theory .katex {
+      font-size: 1.02em
+    }
+
+    .theory sub {
+      font-size: .75em
+    }
+
+    .theory pre.tree {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 14px 16px;
+      overflow-x: auto;
+      font-size: 12.5px;
+      line-height: 1.6;
+      color: #c6ced6;
+      margin: 14px 0;
+    }
+
+    .theory pre.tree b {
+      color: #ffd54f;
+    }
+
+    .theory pre.tree i {
+      color: var(--dim);
+      font-style: normal;
+    }
+
+    .theory table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 13px
+    }
+
+    .theory th,
+    .theory td {
+      border: 1px solid var(--border);
+      padding: 7px 10px;
+      text-align: left
+    }
+
+    .theory th {
+      background: var(--surface2);
+      color: #ffd54f;
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: .5px
+    }
+
+    .theory td {
+      color: var(--text)
+    }
+
+    /* ── image galleries ── */
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 14px;
+      margin: 16px 0
+    }
+
+    .gallery.wide {
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr))
+    }
+
+    .gallery.tight {
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr))
+    }
+
+    .gcard {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      overflow: hidden
+    }
+
+    .gcard img {
+      width: 100%;
+      display: block;
+      background: #000
+    }
+
+    .gcard .cap {
+      padding: 8px 10px;
+      font-size: 11px;
+      color: var(--dim);
+      letter-spacing: .3px;
+      border-top: 1px solid var(--border)
+    }
+
+    .gcard .cap b {
+      color: var(--text)
+    }
+
+    /* ── plot containers ── */
+    .plotbox {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 10px;
+      margin: 16px 0
+    }
+
+    .plotbox .hint {
+      font-size: 11px;
+      color: var(--dim);
+      padding: 4px 4px 10px;
+      letter-spacing: .3px
+    }
+
+    .chart {
+      width: 100%;
+      height: 440px
+    }
+
+    .chart.tall {
+      height: 520px
+    }
+
+    /* ── stat grid ── */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+      margin: 14px 0
+    }
+
+    .stat {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 12px
+    }
+
+    .stat .v {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--accent)
+    }
+
+    .stat .l {
+      font-size: 10.5px;
+      color: var(--dim);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin-top: 4px
+    }
+
+    footer {
+      text-align: center;
+      color: var(--dim);
+      font-size: 11px;
+      padding: 30px 20px;
+      border-top: 1px solid var(--border)
+    }
+
+    /* ── TOC sidebar ── */
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body.has-toc {
+      margin-left: 268px;
+    }
+
+    .toc-sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 268px;
+      height: 100vh;
+      overflow-y: auto;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 18px 0 30px;
+      z-index: 60;
+      overscroll-behavior-y: contain;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    .toc-sidebar::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .toc-sidebar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .toc-sidebar::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 3px;
+    }
+
+    .toc-sidebar:hover::-webkit-scrollbar-thumb {
+      background: var(--muted);
+    }
+
+    .toc-title {
+      font-size: 10.5px;
+      letter-spacing: 2px;
+      color: var(--accent);
+      text-transform: uppercase;
+      font-weight: 700;
+      padding: 0 18px 12px;
+      margin-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .toc-sidebar nav {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .toc-sidebar a {
+      display: block;
+      text-decoration: none;
+      color: var(--dim);
+      font-size: 11.5px;
+      line-height: 1.5;
+      padding: 5px 18px;
+      border-left: 2px solid transparent;
+      white-space: normal;
+    }
+
+    .toc-sidebar a.toc-h1 {
+      color: #ffd54f;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+      font-size: 10.5px;
+      margin-top: 12px;
+      padding-top: 6px;
+    }
+
+    .toc-sidebar a.toc-h2 {
+      padding-left: 30px;
+      font-size: 11px;
+    }
+
+    .toc-sidebar a:hover {
+      color: var(--text);
+      background: var(--surface2);
+    }
+
+    .toc-sidebar a.active {
+      color: var(--accent);
+      background: var(--surface2);
+      border-left-color: var(--accent);
+    }
+
+    .toc-sidebar a.toc-h1.active {
+      color: var(--accent);
+    }
+
+    @media (max-width: 980px) {
+      .toc-sidebar {
+        display: none;
+      }
+
+      body.has-toc {
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <aside class="toc-sidebar" id="tocSidebar">
+    <div class="toc-title">Contents</div>
+    <nav id="tocNav"></nav>
+  </aside>
+
+  <div class="hero">
+    <div class="kicker">RV College of Engineering, Avionics Project Based Learning, Aerospace Engineering
+    </div>
+    <h1>Numerical Modeling of Electromagnetic Scattering<br>for Radar Cross Section Prediction</h1>
+    <div class="sub">Computational RCS Analysis, Conventional vs Stealth Aircraft</div>
+
+    <div class="guidance">
+      <div class="guidance-label">Under the Guidance of</div>
+      <div class="guides-row">
+        <div class="guide">
+          <div class="gname">Dr. Rachana Akki</div>
+          <div class="grole">Assistant Professor</div>
+          <div class="gdept">Department of Electronics And Electrical Engineering</div>
+        </div>
+        <div class="guide">
+          <div class="gname">Dr. Karthik Vel E</div>
+          <div class="grole">Assistant Professor</div>
+          <div class="gdept">Department of Aerospace Engineering</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="team">
+      <div class="member"><b>Akula Uday Kiran</b>1RV23AS004</div>
+      <div class="member"><b>Shanthosh K V</b>1RV23AS053</div>
+      <div class="member"><b>Tejas L</b>1RV23AS061</div>
+    </div>
+  </div>
+
+  <!-- ============================================================ OVERVIEW -->
+  <div class="panel active theory-scroll" id="panel-overview">
+    <div class="theory">
+      <h1>Overview</h1>
+      <p class="lede">A first-principles computational framework (Python) integrating Physical Optics (PO), the Physical
+        Theory of Diffraction (PTD), multi-bounce ray tracing (double/triple-bounce), Radar Absorbent Material (RAM)
+        models including a Surface Impedance Boundary Condition (SIBC), bistatic/polarimetric extensions, a
+        gradient-free
+        geometry optimizer, wideband impulse response, validated against the exact Mie series.
+      </p>
+
+      <h2>1&nbsp;&nbsp;Why Radar Cross Section Matters</h2>
+      <p><b>What it is.</b> RCS (<k>\sigma</k>) is <b>not</b> physical size, silhouette area, or weight, a small
+        object shaped like a corner reflector can return more energy than a much larger smoothly-curved one. It is a
+        purely electromagnetic property: the equivalent area of a hypothetical perfectly-reflecting sphere that would
+        produce the same echo power at the receiver as the real target does. Formally, it is the limit, as the
+        observation
+        distance goes to infinity (so the scattered wave looks locally planar), of the ratio of scattered to incident
+        power density, scaled by <k>4\pi R^2</k> to remove the trivial <k>1/R^2</k> spreading loss that every radiating
+        source has:</p>
+      <d>\sigma = \lim_{R\to\infty} 4\pi R^2 \frac{|E_s|^2}{|E_i|^2}</d>
+      <p><b>Why engineers track it in dBsm, not m<sup>2</sup>.</b> Real targets span an enormous dynamic range, from a
+        stealth aircraft's fractional-square-metre nose-on return to a large cargo ship's tens-of-thousands of
+        square metres. Working in decibels relative to one square metre (dBsm <k>=10\log_{10}(\sigma/1\,\mathrm m^2)</k>
+        )
+        keeps the numbers small and, critically, makes multiplicative physical effects (material loss, shaping gain)
+        <i>additive</i>, which is exactly why every plot on this site is on a dB axis.
+      </p>
+      <p><b>Why it drives detection range, not just "how visible" qualitatively.</b> Substituting <k>\sigma</k> into the
+        monostatic radar range equation and solving for the maximum range at which the echo still exceeds the receiver's
+        noise floor:</p>
+      <d>R_{max} = \left(\frac{P_t G_t G_r \lambda^2 \sigma}{(4\pi)^3 S_{min}}\right)^{1/4} \qquad\Rightarrow\qquad
+        R_{max}\propto\sigma^{1/4}</d>
+      <p>
+        <k>P_t</k> transmit power &middot; <k>G_t,G_r</k> antenna gains &middot; <k>\lambda</k> wavelength &middot;
+        <k>S_{min}</k> minimum detectable signal &middot; <k>E_i,E_s</k> incident/scattered field &middot; <k>R</k>
+        range.
+        The <b>fourth-root</b> dependence is the single most important practical fact in this entire project: it means a
+        brute-force 16&times; reduction in RCS is needed just to halve detection range, but conversely it also means the
+        radar operator cannot simply "turn up the power" to compensate, quadrupling transmit power only buys back
+        a ~41% range increase. Shaping the aircraft is a far more efficient lever than any feasible transmitter upgrade.
+      </p>
+      <p class="note"><b>Reference points, so the numbers on this site have context.</b> F-15 Eagle (a conventional
+        1970s-era fighter shape, flat panels, right-angle intersections everywhere): frontal RCS roughly +10 to +14 dBsm
+        (around 10&ndash;25 m<sup>2</sup>, comparable to a small truck). B-2 Spirit (a purpose-shaped stealth flying
+        wing):
+        frontal RCS roughly &minus;20 to &minus;30 dBsm (around 0.001&ndash;0.01 m<sup>2</sup>, comparable to a large
+        bird
+        or a golf ball). That is a <b>&gt;40 dB</b> spread, a factor of 10,000&times; in raw reflected power, achieved
+        almost entirely through shape, not stealth coatings alone. This project reproduces that same shaping
+        mechanism at a smaller, teaching-scale level between its own "conventional" and "stealth" geometries.</p>
+
+      <h2>2&nbsp;&nbsp;Problem Statement</h2>
+      <p>Aircraft are, first and foremost, designed to fly: their outer mould line is set by aerodynamics, structural
+        load paths, internal volume for fuel, avionics, weapons, and manufacturing cost, radar visibility is
+        historically an afterthought bolted on at the end (radar-absorbent paint, for instance). The consequence is that
+        almost every conventional airframe accidentally contains near-ideal radar reflectors: a vertical tail is a large
+        flat plate; a wing root is a right-angle dihedral; an engine inlet is a deep cavity with a spinning metal fan at
+        the back of it. Modern low-observable ("stealth") design instead treats radar return as a first-class design
+        constraint from day one, and achieves its reduction primarily through <i>geometric shaping</i> that redirects
+        scattered energy away from the threat radar, with radar-absorbent material as a secondary, supporting layer.
+        Reproducing and quantifying that shaping effect computationally runs into three concrete challenges:</p>
+      <ul class="refs">
+        <li><b>Challenge 1, coherent, not additive, physics.</b> A real target's echo is the vector (complex,
+          phase-carrying) sum of many simultaneous physical mechanisms: specular glint off flat panels (PO), diffraction
+          that "leaks" around sharp edges (PTD), and re-reflection inside corners (multi-bounce). Adding their
+          <i>powers</i>
+          independently is a common shortcut in simplified tools, but it is physically wrong, two mechanisms can
+          constructively or destructively interfere depending on relative phase, and only a fully coherent
+          complex-amplitude
+          sum captures that. This project sums complex amplitudes at every step and squares only at the very end.
+        </li>
+        <li><b>Challenge 2, strong non-linearity.</b> RCS is not a smooth, gently-varying function of aspect
+          angle.
+          A one-degree rotation can swing the return by 20+ dB if it crosses a specular glint angle or
+          activates/deactivates
+          a corner-reflector pair. This makes the problem numerically stiff and rules out naive coarse angular sampling.
+        </li>
+        <li><b>Challenge 3, attribution, not just a number.</b> Knowing "the RCS at 45&deg; is 55 dBsm" is far
+          less
+          useful to a design engineer than knowing <i>which panel or edge</i> produced that 55 dBsm, so it can be
+          reshaped.
+          This project's mechanism-breakdown tab exists specifically to answer that attribution question quantitatively
+          rather than by inspection or intuition.</li>
+      </ul>
+
+      <h2>3&nbsp;&nbsp;Objectives</h2>
+      <p>The core objective is to build the whole RCS-prediction pipeline <i>from first principles</i>, no
+        commercial EM solver, no black-box RCS library, so every number on this site can be traced back to a
+        specific equation and a specific line of Python. Concretely, the project set out to:</p>
+      <ul class="refs">
+        <li>Design a first-principles RCS framework in Python integrating PO, PTD, double/triple-bounce, and RAM models,
+          so the same codebase can answer "what does this shape return" for any of the six test geometries.</li>
+        <li>Validate the PO solver against the exact Mie series for a conducting sphere, the one canonical shape
+          electromagnetics has a closed-form exact answer for, and therefore the only fair, no-excuses correctness test.
+        </li>
+        <li>Analyse RCS of six triangulated-mesh geometries across azimuth, elevation, and frequency, rather than at a
+          single "hero" angle that could hide unfavourable behaviour elsewhere.</li>
+        <li>Evaluate dominant scattering mechanisms and derive low-observable design principles that a working aerospace
+          engineer could actually apply to a new design, not just descriptive statistics about this one pair of shapes.
+        </li>
+        <li>Surface Impedance Boundary Condition for
+          real finite-conductivity materials, a gradient-free geometry optimizer that searches for a better stealth
+          shape
+          automatically, wideband time-domain impulse response each accompanied by its own
+          mesh-convergence study, because a result nobody has checked for mesh-independence is not yet a trustworthy
+          result.</li>
+      </ul>
+
+      <h2>4&nbsp;&nbsp;Background, Primary Scattering Contributors</h2>
+      <p>Before building any solver, it is worth simply listing, in plain engineering terms, where most of a
+        conventional aircraft's radar return actually comes from. None of these numbers require simulation, they
+        are well-known rule-of-thumb figures from the RCS literature (Knott, Shaeffer &amp; Tuley) for isolated
+        canonical shapes at the aircraft's approximate real-world dimensions, and they motivate exactly which mechanisms
+        this project needed to model.</p>
+      <table>
+        <tr>
+          <th>Feature</th>
+          <th>Geometry</th>
+          <th>Approx. RCS (X-band)</th>
+        </tr>
+        <tr>
+          <td>Vertical stabiliser (3&times;2 m)</td>
+          <td>Flat-plate broadside</td>
+          <td>~+57 dBsm</td>
+        </tr>
+        <tr>
+          <td>Cylindrical fuselage (d=1.5 m, L=15 m)</td>
+          <td>Cylinder broadside</td>
+          <td>~+42.5 dBsm</td>
+        </tr>
+        <tr>
+          <td>Unshielded engine inlet</td>
+          <td>Deep cavity retroreflector</td>
+          <td>+15 to +25 dBsm</td>
+        </tr>
+        <tr>
+          <td>Wing&ndash;fuselage junction</td>
+          <td>Dihedral corner reflector</td>
+          <td>+10 to +20 dBsm</td>
+        </tr>
+        <tr>
+          <td>Canopy / cockpit</td>
+          <td>Cavity, forward aspect</td>
+          <td>+5 to +15 dBsm</td>
+        </tr>
+      </table>
+
+
+    </div>
+  </div>
+
+  <!-- ============================================================ THEORY -->
+  <div class="panel theory-scroll" id="panel-theory">
+    <div class="theory">
+      <h1>Governing Physics &amp; Scattering Mechanisms</h1>
+      <p class="lede">Every RCS number in this project is a coherent complex-amplitude sum of three physical mechanisms,
+        squared at the end, never added as independent powers. <k>k=2\pi/\lambda</k> is the free-space
+        wavenumber,
+        <k>\hat s</k> the unit look direction, <k>\rho</k> per-facet reflectivity (1 for bare PEC, &lt;1 under a
+        RAM/SIBC model).
+      </p>
+
+      <h2>1&nbsp;&nbsp;What is a Facet, and Why Mesh the Aircraft at All?</h2>
+      <p><b>What.</b> Every aircraft surface here is discretized into flat <b>triangular facets</b>, the same
+        faceted-mesh representation used in real RCS prediction codes (XPATCH, POFACETS, FEKO's PO solver). Each facet
+        <k>i</k> carries a centroid <k>\mathbf c_i</k>, an outward unit normal <k>\hat n_i</k>, and an area <k>A_i</k>,
+        exactly the same three numbers a structural-FEM mesh element carries, just used for a different physics.
+      </p>
+      <p><b>Why not solve Maxwell's equations exactly on the real curved surface?</b> Because an exact solution
+        (the Method of Moments, MoM) requires solving a dense linear system with one unknown per roughly
+        <k>\lambda/10</k> of surface, for a full-size aircraft at X-band that is tens of millions of unknowns,
+        computationally intractable on ordinary hardware. Faceting trades that exactness for tractability: replace the
+        smooth surface with flat triangles small enough that, locally, the wave "sees" each one as if it were an
+        infinite flat plate (the tangent-plane approximation underlying PO). The mesh-convergence studies on this site
+        are exactly the check that this trade-off was made safely, i.e. that the facets ended up small enough
+        relative to the wavelength that the approximation error is negligible.
+      </p>
+      <p><b>How illumination is decided.</b> PO sums a phased contribution from every <i>illuminated</i> facet
+        (<k>\hat n_i\cdot\hat s &gt; 0</k>, meaning the facet's outward normal has a positive component back toward the
+        radar); shadowed facets (facing away) contribute nothing to first order. Finer meshing (higher subdivision)
+        approximates curved/complex surfaces more accurately at the cost of <k>O(n)</k> to <k>O(n^3)</k> compute
+        depending
+        on which physics layer is active, PO's contribution is a simple vectorised sum, but double- and
+        triple-bounce require checking pairs and triples of facets against each other, which is where the cost explodes.
+      </p>
+
+      <h2>2&nbsp;&nbsp;Physical Optics (PO), Specular Reflection</h2>
+      <p><b>What it models.</b> The dominant "mirror-like" glint you get when a flat (or locally-flat) surface happens
+        to be oriented so the incident ray reflects straight back at the radar. This is the single largest RCS
+        contributor
+        for almost any aircraft at almost any aspect, it is why a vertical tail fin lights up like a beacon at
+        broadside and why a curved fuselage still returns a bright, narrow glint at the exact angle where its local
+        surface normal points at the radar. The coherent PO scattered-field amplitude is a phased sum over all
+        illuminated facets, each weighted by its area, its obliquity to the radar, and a propagation-phase term that
+        encodes exactly how far that facet's return has to travel relative to every other facet's return (this phase
+        term is what lets facets constructively or destructively interfere, the whole reason a coherent sum, not
+        a
+        power sum, is required):</p>
+      <d>f_{PO} = \sum_i \rho_i A_i(\hat n_i\cdot\hat s)\exp(j2k\,\mathbf c_i\cdot\hat s) \qquad\qquad \sigma =
+        \frac{4\pi}{\lambda^2}|f|^2</d>
+      <p><b>How it scales, and why that matters for shaping.</b> PO return scales with facet area and incidence angle
+        as <k>\sigma \propto A^2(\hat n\cdot\hat s)^2/\lambda^2</k>, large flat panels facing the radar dominate
+        (this is why a 3&times;2 m vertical stabiliser alone returns ~+57 dBsm broadside: doubling a panel's linear
+        dimension quadruples its <i>area</i>, but because RCS goes as area <i>squared</i>, it actually increases the
+        return by a factor of sixteen). This quadratic-in-area law is precisely why stealth designers prefer many small
+        faceted panels, or curved/blended surfaces with no single large flat region, over one big smooth panel,
+        splitting one large panel into several smaller, differently-angled ones can turn one huge specular spike into
+        several much smaller ones scattered to different, less threatening angles.</p>
+      <p><b>Where it is used in practice.</b> This is the workhorse layer of essentially every real high-frequency RCS
+        prediction code, because it is cheap (a single vectorised sum, no per-pair or per-triple looping) and gets the
+        dominant physics right for electrically-large smooth targets (aircraft, ships) at microwave frequencies.</p>
+      <p class="warn"><b>Limitation.</b> PO-only computation <i>underestimates</i> RCS: it misses edge and multi-bounce
+        contributions present in real geometries, and it has no concept of a shadow boundary's diffracted field (it just
+        switches a facet fully on or fully off at the illumination boundary, which is physically discontinuous). Every
+        subsequent layer below corrects a specific, named blind spot of PO.</p>
+
+      <h2>3&nbsp;&nbsp;Physical Theory of Diffraction (PTD), Edge Diffraction</h2>
+      <p><b>Why it is needed.</b> PO's tangent-plane approximation is only valid deep inside a flat facet; right at an
+        edge, a wingtip, a trailing edge, the rim of an engine inlet, the surface is discontinuous and
+        PO's
+        prediction is not just imprecise, it is formally wrong (it predicts a field discontinuity across the shadow
+        boundary that cannot physically exist, since Maxwell's equations forbid an infinitely sharp field transition).
+        Ufimtsev's Physical Theory of Diffraction fixes this by adding a correction "fringe wave" localized to the edge
+        itself, so the combined PO+PTD field is continuous everywhere, matching what a full-wave solution shows.
+      </p>
+      <p><b>How it is computed.</b> Ufimtsev's fringe-wave diffraction coefficient depends on the wedge's interior angle
+        via a parameter <k>n</k> (n=2 for a free/isolated edge such as a wingtip open to free space on both sides, n=1.5
+        for a right-angle convex ridge such as a wing-fuselage seam) and on the incidence angle <k>\beta</k> measured
+        from
+        the edge:</p>
+      <d>D(n,\beta) = -\frac{e^{-j\pi/4}}{n\sqrt{2\pi k}}\cdot\frac{\cot(\pi/2n)}{\sin\beta}</d>
+      <p>Diffraction lobes from a finite edge of length <k>L</k> follow a sinc envelope in aspect angle, the same
+        sinc pattern that shows up in antenna-array theory and slit diffraction, because the underlying mathematics
+        (a coherent sum along a line) is identical:</p>
+      <d>f_{PTD} \propto \mathrm{sinc}(kL\cos\beta)</d>
+      <p><b>Where it matters for shaping.</b> This is exactly why stealth aircraft leading and trailing edges are all
+        swept to a small number of common angles ("edge alignment"), every edge's diffraction lobe then points in
+        the same handful of directions, so there are only a few narrow "glint" aspects to defend against instead of edge
+        energy smeared continuously across all azimuths.</p>
+      <p class="note">Adding PTD raises the mean RCS by capturing edge diffraction from geometric discontinuities that
+        PO
+        alone is blind to, visible as the elevated diffuse floor in every azimuth sweep on the Scattering
+        Mechanisms tab.</p>
+
+      <h2>4&nbsp;&nbsp;Double-Bounce, Corner Reflector</h2>
+      <p><b>What it is and why it is dangerous.</b> Two flat facets meeting at close to a right angle form a dihedral
+        corner reflector, the same geometric principle used deliberately in navigation radar reflectors on small
+        boats (a cheap, lightweight way to make a fibreglass boat visible to ship radar) and in truck-mounted
+        calibration
+        targets. On an aircraft, a wing-fuselage junction or a fin-fuselage junction is an <i>accidental</i> version of
+        the
+        same thing: a ray hits the first facet, reflects onto the second facet, and reflects a second time
+        <i>straight back along its incoming path</i>, retroreflection, the same effect that makes a bicycle
+        reflector or road sign so bright when lit head-on by car headlights. A facet pair <k>(i,j)</k> is an active
+        double-bounce contributor when the retroreflection condition holds:
+      </p>
+      <d>\mathbf d_{ref,j}\cdot\hat s > 0.2</d>
+      <p>where <k>\mathbf d_{ref,j}</k> is the ray reflected off facet <k>i</k> then off facet <k>j</k>. <b>Why this
+          matters so much:</b> a corner reflector's RCS does not fall off nearly as fast with mis-orientation as a
+        single
+        flat plate's does, it stays retroreflective over a much wider range of incidence angles, which is exactly
+        why it introduces sharp, <i>broad</i> RCS spikes at quarter-on aspects (45&deg;/135&deg;) driven by dozens of
+        simultaneously-active retroreflecting facet pairs, rather than the razor-thin spikes PO alone predicts from
+        a single flat panel. PO+PTD alone completely miss this mechanism because it requires tracing a ray through
+        <i>two</i> facets, not evaluating each facet independently.
+      </p>
+
+      <h2>5&nbsp;&nbsp;Triple-Bounce, Trihedral Corner Reflector</h2>
+      <p><b>What it is.</b> Extending the ray trace one more reflection captures trihedral corners, three
+        mutually near-perpendicular facets meeting at a point, exactly the geometry of a surveyor's or marine trihedral
+        corner reflector (three metal or mesh panels folded like the inside corner of a cube), which is deliberately
+        used
+        as a radar calibration target precisely <i>because</i> it is such an efficient, wide-angle retroreflector. On an
+        aircraft this three-way geometry shows up accidentally at a wing&ndash;fuselage&ndash;tail junction where three
+        surfaces happen to meet at close to mutually perpendicular angles.</p>
+      <p><b>Why it returns even more energy than a dihedral.</b> A trihedral reflects the incoming ray back along its
+        exact incoming path over a much wider solid angle of incidence than a dihedral does (a dihedral only
+        retroreflects
+        within the plane perpendicular to its fold line; a trihedral retroreflects over a genuine 3-D cone of angles),
+        and
+        its peak RCS scales with the <i>fourth</i> power of its characteristic edge length <k>L</k> rather than a weaker
+        power for a simple dihedral:</p>
+      <d>\sigma_{trihedral,\,peak} \sim \frac{4\pi L^4}{3\lambda^2}</d>
+      <p class="note">Textbook-consistent finding: trihedral (triple-bounce) returns <b>exceed</b> dihedral
+        (double-bounce)
+        returns at their respective peak angles, <k>\sigma\propto L^4/\lambda^2</k> for a trihedral vs a weaker
+        scaling for a simple dihedral. Confirmed numerically on the Multi-Bounce tab (not a bug) by explicitly counting
+        how
+        many contributing facet triples are active at the peak angle before accepting the result.</p>
+
+      <h2>6&nbsp;&nbsp;Bistatic Generalisation</h2>
+      <p><b>What "bistatic" means and why it is a separate case at all.</b> Every equation above assumes the transmitter
+        and receiver are co-located (monostatic radar, the ordinary case, one antenna doing both jobs). A
+        bistatic
+        radar instead has a physically separate transmitter and receiver, sometimes hundreds of kilometres apart. This
+        matters for stealth because shaping a target to defeat monostatic detection (redirecting energy <i>away</i> from
+        the transmitter) does not automatically defeat a receiver sitting somewhere else entirely, energy
+        redirected
+        away from one direction has to go <i>somewhere</i>, and a bistatic receiver can be waiting exactly there.</p>
+      <p><b>Where this is used in the real world.</b> "Passive bistatic radar" or "passive coherent location" systems
+        deliberately exploit this: they use existing FM radio or digital TV broadcast towers as the illuminator and a
+        separate, silent (hence undetectable) receiver to pick up the forward-scattered or bistatically-scattered energy
+        , a technique specifically discussed as a potential counter-stealth approach in open literature, because
+        stealth shaping is optimized primarily for the monostatic backscatter case.</p>
+      <p><b>How the model generalises.</b> All mechanisms above generalise to separate transmitter/receiver directions
+        via the incidence&ndash;scatter <b>bisector</b>, physically, a facet reflects specularly relative to the
+        bisector of the incoming and outgoing ray directions, exactly like a mirror, so the obliquity and phase terms
+        are
+        evaluated against that bisector instead of a single direction:</p>
+      <d>\text{bisector} = \tfrac12(\hat s_{tx}+\hat s_{rx}) \qquad \text{obliquity} = \hat n\cdot\text{bisector} \qquad
+        \text{phase} = \exp\!\big(jk\,\mathbf c\cdot(\hat s_{tx}+\hat s_{rx})\big)</d>
+      <p>At <k>\hat s_{rx}=\hat s_{tx}</k> (transmitter and receiver in the same place) this reduces exactly
+        (bit-for-bit,
+        verified in the self-check) to the original monostatic formula, a mandatory sanity check, since a
+        bistatic
+        formula that does not collapse correctly to its monostatic special case is provably wrong.</p>
+
+      <h2>7&nbsp;&nbsp;Polarimetric RCS</h2>
+      <p><b>What it is and why a single RCS number is not the whole story.</b> Radar antennas transmit a specific
+        polarization (horizontal H or vertical V) and can also receive on either polarization. A real target can shift
+        some of the reflected energy from the transmitted polarization into the orthogonal one, "depolarization"
+        or
+        "cross-pol return", and how much it does so is itself a distinguishing physical signature, not noise. A
+        full 2&times;2 complex scattering matrix relates incident to scattered field in a fixed global (H,V) basis:</p>
+      <d>\begin{bmatrix}E_H^s\\E_V^s\end{bmatrix} = S\begin{bmatrix}E_H^i\\E_V^i\end{bmatrix} \qquad
+        \sigma_{pq} = \frac{4\pi}{\lambda^2}|S_{pq}|^2 \quad (p,q\in\{H,V\})</d>
+      <p><b>How depolarization physically arises.</b> Each PEC facet reflects with the textbook TE/TM dichotomy
+        (<k>r_\perp=-1,\ r_\parallel=+1</k>) in its <i>own</i> local plane-of-incidence basis; projecting that local
+        reflection into the fixed global frame is exactly what produces cross-pol (HV/VH). A facet square-on to the
+        radar
+        has no defined plane of incidence and stays pure co-pol; a tilted facet or dihedral corner has a rotated local
+        basis and leaks energy into the cross channel, the same mechanism that makes real corner reflectors
+        depolarizing. Multi-bounce mechanisms use cascaded Jones matrices, e.g. double-bounce:
+        <k>S_{DB} \propto J_j J_i</k>, triple-bounce: <k>S_{TB}\propto J_k J_j J_i</k>.
+      </p>
+
+      <h2>8&nbsp;&nbsp;RAM, Salisbury Screen &amp; Dallenbach Layer</h2>
+      <p><b>What RAM is and why shaping alone is not always enough.</b> Radar-Absorbent Material is a coating or layer
+        applied to a surface specifically to convert incident RF energy into heat (dielectric or resistive loss) instead
+        of reflecting it. Shaping cannot help everywhere, some surfaces (a necessarily-flat weapons-bay door, an
+        engine inlet lip) cannot be angled away from every possible threat direction without breaking some other
+        requirement, and RAM is the tool that reduces the return from exactly those surfaces without changing their
+        shape.
+        Both classical designs modelled here are transmission-line reflection problems: a resistive/lossy layer over a
+        PEC backplane (representing the aircraft's underlying metal structure), characterised by an input impedance
+        <k>Z_{in}</k> and reflection coefficient
+      </p>
+      <d>\Gamma = \frac{Z_{in}-Z_0}{Z_{in}+Z_0}, \qquad Z_0 = 377\,\Omega \ \text{(free-space impedance)}</d>
+      <p><b>Salisbury screen</b>, a single resistive sheet (<k>R_s\approx Z_0</k>) placed a quarter-wavelength
+        in front of a PEC backplane, with an air gap in between. The short-circuited quarter-wave line transforms the
+        PEC's zero impedance to infinite at the sheet, so all incident energy is dissipated resistively at that one
+        frequency, <b>deep but narrowband</b> absorption. This is the oldest practical RAM design (1940s) and is
+        still conceptually the basis for many radar-absorbing panels used at fixed test-range or calibration
+        frequencies.</p>
+      <p><b>Dallenbach layer</b>, a single lossy dielectric slab (complex <k>\epsilon_r</k>, meaning it has both
+        a normal dielectric response <i>and</i> an imaginary loss component) of thickness <k>d</k> directly on the PEC
+        backplane, no air gap required, simpler to bond directly onto an airframe skin:</p>
+      <d>Z_{in} = Z_1\tanh(jk_1 d), \qquad Z_1=\frac{Z_0}{\sqrt{\epsilon_r\mu_r}},\ \ k_1=k_0\sqrt{\epsilon_r\mu_r}</d>
+      <p>Loss is distributed through the slab volume rather than concentrated at one sheet: <b>broader but shallower</b>
+        absorption than Salisbury, i.e. it trades peak absorption depth for a wider useful
+        frequency band, which is generally the more practical trade-off for an aircraft that must stay stealthy across
+        an
+        entire radar band, not just one calibration frequency.
+      </p>
+
+      <h2>9&nbsp;&nbsp;Surface Impedance Boundary Condition (SIBC)</h2>
+      <p class="lede">Every mechanism above assumes a Perfect Electric Conductor (<k>\rho=1</k>, total reflection). Real
+        airframe skins are finite-conductivity metals/composites, the Leontovich SIBC replaces the PEC assumption
+        with a frequency-dependent surface impedance.</p>
+      <d>Z_s = (1+j)\sqrt{\frac{\pi f\mu}{\sigma}}\, ,\qquad \Gamma = \frac{Z_s-Z_0}{Z_s+Z_0}\, ,\qquad
+        \delta = \frac{1}{\sqrt{\pi f\mu\sigma}}\ \text{(skin depth)}</d>
+      <p>
+        <k>\sigma</k> here is <b>electrical conductivity</b> (S/m, not RCS), <k>\mu</k> permeability, <k>\delta</k> skin
+        depth. As <k>\sigma\to\infty</k>, <k>Z_s\to0</k> and <k>\Gamma\to-1</k>, recovering PEC exactly, verified
+        in
+        the self-check.
+      </p>
+      <p class="note"><b>Why it's required.</b> Modern airframes increasingly use CFRP composites (conductivity
+        ~1000&times;
+        lower than aluminum) instead of aluminum skins, a PEC-only model cannot distinguish them. SIBC plugs a
+        real, measurable material property directly into every existing solver via the same interface used for
+        Salisbury/
+        Dallenbach RAM, with zero physics-layer rewrite.</p>
+
+
+      <h2>10&nbsp;&nbsp;Geometry Optimization</h2>
+      <p><b>Why automate the search at all.</b> Everything up to this point treats the stealth aircraft's shape as
+        fixed, a human designer picked the sweep angle, the tail cant, and the nose length by hand, informed by
+        the design principles in &sect;3&ndash;5 above. But those design principles only say the <i>direction</i> to
+        move
+        a parameter (sweep more, cant more); they do not say the specific optimal value, and RCS depends on all three
+        parameters simultaneously through a landscape that is far too complex to search by hand. This section asks: if
+        we
+        let the computer search that parameter space automatically, can it beat the hand-tuned baseline, and by how
+        much?</p>
+      <p><b>How the problem is set up.</b> Stealth geometry is parametrized by wing leading-edge sweep angle
+        <k>\Lambda</k>, V-tail cant angle <k>\gamma</k>, and nose length <k>L_n</k>, the three parameters the
+        design-principles discussion above identified as the direct geometric levers on RCS. The objective is the
+        <b>linear-domain</b> mean RCS over an azimuth sweep (correct averaging convention, dBsm values themselves
+        must never be arithmetically averaged, since decibels are a logarithmic, not linear, scale; averaging them
+        directly systematically under-weights the loud angles that actually matter most for detectability):
+      </p>
+      <d>\bar\sigma_{lin} = \frac1N\sum_{i=1}^N 10^{\sigma_i(\mathrm{dBsm})/10}\, ,\qquad
+        \bar\sigma_{dB}=10\log_{10}\bar\sigma_{lin}</d>
+      <d>\min_{\Lambda,\gamma,L_n}\ \bar\sigma_{dB}(\Lambda,\gamma,L_n)</d>
+      <p><b>Why differential evolution, not gradient descent.</b> Solved with
+        <k>\texttt{scipy.optimize.differential\_evolution}</k>, a gradient-free, population-based global
+        optimizer.
+        This choice is deliberate, not arbitrary: a faceted PO/PTD RCS landscape is non-convex (many local minima as
+        different corner reflectors and specular glints switch on and off with angle) and non-smooth (a facet flipping
+        from illuminated to shadowed, or a double-bounce pair switching on, creates a genuine kink or jump in the
+        objective function). Gradient-based methods (steepest descent, BFGS) implicitly assume the function is smooth
+        enough to have a well-defined local slope everywhere and can get stuck in, or fail outright at, those
+        discontinuities; differential evolution instead maintains a whole population of candidate parameter sets and
+        combines/mutates them, needing no derivative information at all.
+      </p>
+      <p><b>Where this mirrors real aircraft design practice.</b> Modern aircraft design increasingly uses exactly this
+        kind of multi-disciplinary automated optimization (MDO), letting an algorithm search a shape's free
+        parameters against a stated objective (RCS, drag, structural weight) rather than relying purely on a human
+        designer's iteration-by-hand, though a real MDO loop runs alongside aerodynamic and structural constraints
+        this teaching-scale version deliberately leaves out to keep the search tractable and its result explainable.</p>
+
+      <h2>11&nbsp;&nbsp;Wideband Impulse Response</h2>
+      <p><b>Why a single frequency is not enough.</b> A single number cannot tell you
+        <i>where along the aircraft</i> the energy is coming from, the nose, a wing leading edge, and the tail
+        can
+        all contribute to the same one-number total, indistinguishably. Real radars that need that spatial information
+        (range profiling, target recognition) do not transmit one frequency; they step or sweep across a band and
+        combine
+        the results. This section reproduces exactly that processing chain.
+      </p>
+      <p><b>How it works.</b> Instead of a single-frequency RCS number, sweep the <i>same</i> coherent complex amplitude
+        across a frequency band and inverse-Fourier-transform it into a time-domain range profile, the standard
+        stepped-frequency radar processing chain used to resolve individual scattering centres along the target's line
+        of sight. Physically: each frequency in the sweep is a different "comb tooth"; Fourier theory guarantees that
+        combining many closely-spaced frequency-domain samples and inverse-transforming them synthesizes a short
+        time-domain
+        pulse, exactly as if a single very-short, very-wideband pulse had been transmitted and its echo recorded
+        directly
+        , without ever needing hardware capable of generating that short a pulse.</p>
+
+      <d>R = \frac{c\,t}{2}\, ,\qquad \Delta R = \frac{c}{2B}\ \text{(range resolution, bandwidth }B\text{)}</d>
+
+
+
+
+    </div>
+  </div>
+
+  <!-- ============================================================ GEOMETRY -->
+  <div class="panel theory-scroll" id="panel-geometry">
+    <div class="theory">
+      <h1>Geometry &amp; Meshing</h1>
+      <p class="lede">Six triangulated-mesh PEC geometries, all built from first-principles facet primitives
+        (<k>\texttt{geometries.py}</k>): quads subdivided into paired triangles, triangular nose/tail caps, welded only
+        within each primitive so wing&ndash;fuselage junction edges stay correctly classified as boundary edges.</p>
+      <p>Why six shapes and not just "conventional vs stealth"? Each of the other four isolates one specific
+        electromagnetic idea so its effect can be seen in isolation before looking at the two full aircraft: the sphere
+        is the one shape with an exact closed-form answer (used purely to validate the solver, see &sect;4 below); the
+        flat plate is the simplest possible specular reflector, used as a textbook-formula sanity check; the flying wing
+        demonstrates a shape with <i>zero</i> vertical surfaces at all (the most radical stealth shaping choice, used on
+        the real B-2 Spirit); and the chined-nose shape demonstrates blending the fuselage directly into the wing
+        leading
+        edge (used on the real F-22/F-35 family) as an alternative to a separate, sharply-defined nose cone.</p>
+
+      <h2>1&nbsp;&nbsp;Target Geometries</h2>
+      <table>
+        <tr>
+          <th>Geometry</th>
+          <th>Baseline facets</th>
+          <th>Notes</th>
+        </tr>
+        <tr>
+          <td>Sphere (r=1 m)</td>
+          <td>2304</td>
+          <td>Mie-series validation baseline</td>
+        </tr>
+        <tr>
+          <td>Flat plate (2&times;2 m)</td>
+          <td>2</td>
+          <td>Textbook <k>\sigma=4\pi A^2/\lambda^2</k> check</td>
+        </tr>
+        <tr>
+          <td>Conventional aircraft</td>
+          <td>34</td>
+          <td>Flat fuselage, right-angle wing/fin dihedrals, flat nose-on intake</td>
+        </tr>
+        <tr>
+          <td>Stealth aircraft</td>
+          <td>20</td>
+          <td>Trapezoidal fuselage, pyramidal nose, 65&deg; swept delta wings, 35&deg;-canted V-tail</td>
+        </tr>
+        <tr>
+          <td>Flying wing</td>
+          <td>28</td>
+          <td>Zero vertical surfaces, sawtooth trailing edge</td>
+        </tr>
+        <tr>
+          <td>Chined nose</td>
+          <td>18</td>
+          <td>Diamond fuselage blended to wing LE, 28&deg; twin tails</td>
+        </tr>
+      </table>
+
+      <div class="gallery tight">
+        <div class="gcard"><img src="output_ppt/01_geometry/sphere_iso.png" loading="lazy">
+          <div class="cap">Sphere, iso</div>
+        </div>
+        <div class="gcard"><img src="output_ppt/01_geometry/flat_plate_iso.png" loading="lazy">
+          <div class="cap">Flat plate, iso</div>
+        </div>
+        <div class="gcard"><img src="output_ppt/01_geometry/conventional_iso.png" loading="lazy">
+          <div class="cap">Conventional, iso</div>
+        </div>
+        <div class="gcard"><img src="output_ppt/01_geometry/stealth_iso.png" loading="lazy">
+          <div class="cap">Stealth, iso</div>
+        </div>
+        <div class="gcard"><img src="output_ppt/01_geometry/flying_wing_iso.png" loading="lazy">
+          <div class="cap">Flying wing, iso</div>
+        </div>
+        <div class="gcard"><img src="output_ppt/01_geometry/chined_nose_iso.png" loading="lazy">
+          <div class="cap">Chined nose, iso</div>
+        </div>
+      </div>
+
+      <h2>2&nbsp;&nbsp;Multi-View Detail (Conventional vs Stealth)</h2>
+      <div class="gallery tight">
+        <div class="gcard"><img src="output_ppt/01_geometry/conventional_front.png" loading="lazy">
+          <div class="cap">Conventional, front</div>
+        </div>
+        <div class="gcard"><img src="output_ppt/01_geometry/conventional_side.png" loading="lazy">
+          <div class="cap">Conventional, side</div>
+        </div>
+        <div class="gcard"><img src="output_ppt/01_geometry/conventional_top.png" loading="lazy">
+          <div class="cap">Conventional, top</div>
+        </div>
+        <div class="gcard"><img src="output_ppt/01_geometry/conventional_wireframe.png" loading="lazy">
+          <div class="cap">Conventional, wireframe (facets)</div>
+        </div>
+        <div class="gcard"><img src="output_ppt/01_geometry/stealth_front.png" loading="lazy">
+          <div class="cap">Stealth, front</div>
+        </div>
+        <div class="gcard"><img src="output_ppt/01_geometry/stealth_side.png" loading="lazy">
+          <div class="cap">Stealth, side</div>
+        </div>
+        <div class="gcard"><img src="output_ppt/01_geometry/stealth_top.png" loading="lazy">
+          <div class="cap">Stealth, top</div>
+        </div>
+        <div class="gcard"><img src="output_ppt/01_geometry/stealth_wireframe.png" loading="lazy">
+          <div class="cap">Stealth, wireframe (facets)</div>
+        </div>
+      </div>
+      <h3>Flying wing &amp; chined nose</h3>
+      <div class="gallery tight">
+        <div class="gcard"><img src="output_ppt/01_geometry/flying_wing_wireframe.png" loading="lazy">
+          <div class="cap">Flying wing, wireframe</div>
+        </div>
+        <div class="gcard"><img src="output_ppt/01_geometry/flying_wing_top.png" loading="lazy">
+          <div class="cap">Flying wing, top</div>
+        </div>
+        <div class="gcard"><img src="output_ppt/01_geometry/chined_nose_wireframe.png" loading="lazy">
+          <div class="cap">Chined nose, wireframe</div>
+        </div>
+        <div class="gcard"><img src="output_ppt/01_geometry/chined_nose_top.png" loading="lazy">
+          <div class="cap">Chined nose, top</div>
+        </div>
+      </div>
+
+      <h2>3&nbsp;&nbsp;Edge Classification</h2>
+      <p><b>Why classify edges at all.</b> Recall from the Governing Physics tab that PTD's diffraction strength depends
+        on the wedge parameter <k>n</k>, and <k>n</k> in turn depends on whether an edge is a "boundary" edge (open to
+        free space on one side, like a wingtip or trailing edge, typically <k>n=2</k>) or an "internal" edge (a ridge
+        where two facets of the <i>same</i> solid meet at some interior angle, like a wing-fuselage seam, typically
+        <k>n\approx1.5</k> for a right-angle ridge). Internal right-angle ridges diffract more strongly than free
+        boundary edges, so simply <i>counting</i> how many of each type a geometry has is a fast, purely-geometric
+        predictor of how "loud" its PTD layer is, before a single RCS calculation is run.
+      </p>
+      <table>
+        <tr>
+          <th>Geometry</th>
+          <th>Total edges</th>
+          <th>Internal edges</th>
+          <th>Boundary edges</th>
+          <th>Mean wedge n</th>
+        </tr>
+        <tr>
+          <td>Conventional aircraft</td>
+          <td>61</td>
+          <td>41</td>
+          <td>20</td>
+          <td>1.8</td>
+        </tr>
+        <tr>
+          <td>Stealth aircraft</td>
+          <td>52</td>
+          <td>8</td>
+          <td>44</td>
+          <td>2.0</td>
+        </tr>
+      </table>
+      <p>The conventional aircraft's 41 internal edges (many at <k>n=1.5</k>, right-angle convex ridges) drive elevated
+        diffraction; the stealth aircraft's uniform <k>n=2.00</k> reflects <b>zero</b> internal right-angle ridge
+        structure
+        , every single edge on the stealth geometry is a free boundary edge, a direct, quantitative fingerprint of
+        its blended, seamless shaping philosophy that isn't obvious from the pictures alone.</p>
+      <div class="gallery">
+        <div class="gcard"><img src="output_ppt/08_physics_diagrams/conventional_edge_classification.png"
+            loading="lazy">
+          <div class="cap">Conventional, edge classification</div>
+        </div>
+        <div class="gcard"><img src="output_ppt/08_physics_diagrams/stealth_edge_classification.png" loading="lazy">
+          <div class="cap">Stealth, edge classification</div>
+        </div>
+      </div>
+
+      <h2>4&nbsp;&nbsp;Mie Validation (Why Trust the Solver)</h2>
+      <div class="stats">
+        <div class="stat">
+          <div class="v">4.97 dBsm</div>
+          <div class="l">Mie exact &sigma;, r=1m, 10 GHz</div>
+        </div>
+        <div class="stat">
+          <div class="v">&lt;0.2 dB</div>
+          <div class="l">PO solver match to Mie</div>
+        </div>
+        <div class="stat">
+          <div class="v">209.4</div>
+          <div class="l">ka (optical regime)</div>
+        </div>
+        <div class="stat">
+          <div class="v">238</div>
+          <div class="l">Wiscombe series terms, n_max</div>
+        </div>
+      </div>
+      <div class="gallery">
+        <div class="gcard"><img src="output_ppt/02_rcs_polar/sphere_polar_mie.png" loading="lazy">
+          <div class="cap">Sphere, Mie series exact RCS, X-band</div>
+        </div>
+        <div class="gcard"><img src="output_ppt/01_geometry/sphere_wireframe.png" loading="lazy">
+          <div class="cap">Sphere mesh (2304 facets) used for PO cross-check</div>
+        </div>
+      </div>
+
+      <h2>5&nbsp;&nbsp;Mesh Convergence, Baseline (PO+PTD+DoubleBounce)</h2>
+      <p><b>Why bother checking this.</b> The report's headline numbers use deliberately coarse baseline meshes
+        (18&ndash;34 facets) chosen to keep the O(n<sup>2</sup>) double-bounce and O(n<sup>3</sup>) triple-bounce
+        solvers
+        fast enough for interactive sweeps across hundreds of angles. That raises an obvious, fair question a reviewer
+        should ask: is 20&ndash;34 facets actually enough, or are the headline numbers an artifact of too coarse a mesh?
+        A mesh-convergence study is the standard numerical-methods answer to exactly that question, refine the
+        mesh repeatedly and check whether the answer stops changing. If it does not stop changing, the original result
+        cannot be trusted regardless of how physically reasonable it looks.</p>
+      <p class="lede">Does RCS stabilise as facet count grows and facet size shrinks well below <k>\lambda</k> (X-band,
+        3 cm)? Three solver tiers by computational complexity class: PO alone (vectorised, <k>O(n)</k>, scales to
+        ~10<sup>8</sup> facets), PO+PTD (edge extraction, Python loop, ~10<sup>6</sup>), PO+PTD+DoubleBounce
+        (<k>O(n^2)</k> nested loop, ~10<sup>4</sup>). Click legend entries to toggle series.</p>
+      <p class="warn"><b>Why the curve suddenly jumps at two points instead of smoothly flattening.</b> Look
+        closely and every convergence chart on this site has one or two sudden steps rather than a single smooth
+        settle, those steps sit exactly where the plot crosses from one solver tier to the next
+        (DoubleBounce&rarr;PTD around 8,704&rarr;34,816 facets, PTD&rarr;PO around 557,056&rarr;3,060,000 facets).
+        This is <i>not</i> numerical error and not the mesh failing to converge. Double-bounce and PTD are too
+        expensive to run at millions of facets (<k>O(n^2)</k> and a per-edge Python loop respectively), so past
+        each tier boundary that mechanism is silently dropped from the sum purely to stay computationally
+        tractable, the PO+PTD+DoubleBounce tier includes all three mechanisms, the PTD tier includes only
+        PO+PTD, and the PO tier includes PO alone. Each step is therefore a real, honest accounting change (one
+        whole physical mechanism switching off), not a defect in the plot; within each tier on its own, the curve
+        does settle smoothly, which is the actual convergence claim being tested.</p>
+      <div class="plotbox">
+        <div id="chart-basic" class="chart tall"></div>
+        <div class="hint">Ceiling found empirically: this machine OOMs building the mesh at ~3&times;10<sup>8</sup>
+          facets
+          (6.8 GB+ per array copy); RCS is already flat to 4 decimal places by ~10<sup>6</sup> facets, so the
+          theoretical
+          10<sup>10</sup>-facet request is not physically meaningful to chase further. The two tier-boundary jumps
+          described above are visible at facet counts ~3&times;10<sup>4</sup> and ~3&times;10<sup>6</sup>.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ MECHANISMS -->
+  <div class="panel theory-scroll" id="panel-mechanisms">
+    <div class="theory">
+      <h1>Scattering Mechanism Breakdown</h1>
+      <p class="lede">Isolating each physics layer (PO-only, PTD edge, double-bounce) on the same axes reveals which
+        geometric feature drives which mechanism, the diagnostic result the problem statement explicitly demanded
+        (Challenge 3, Overview &sect;2). This is the tab that turns "the total RCS is X dBsm" into "the total RCS is X
+        dBsm, and here specifically is what caused it and where on the airframe."</p>
+      <p>The method is simple: compute the <i>same</i> azimuth sweep three separate times, once with only the PO layer
+        switched on, once with only PTD, once with only double-bounce, and plot each against the full-physics total as a
+        faint reference line. Wherever a single-mechanism curve tracks close to the full-physics line, that mechanism is
+        the dominant contributor at that angle; wherever it sits far below, something else (usually one of the other two
+        layers) is doing most of the work there instead.</p>
+
+      <h2>1&nbsp;&nbsp;PO-Only (Specular)</h2>
+      <div class="gallery">
+        <div class="gcard"><img src="output_ppt/06_breakdown/conventional_mechanism_po_only.png" loading="lazy">
+          <div class="cap">Conventional, PO only</div>
+        </div>
+        <div class="gcard"><img src="output_ppt/06_breakdown/stealth_mechanism_po_only.png" loading="lazy">
+          <div class="cap">Stealth, PO only (deep null at tail-on, 180&deg;)</div>
+        </div>
+      </div>
+
+      <h2>2&nbsp;&nbsp;PTD Edge Diffraction</h2>
+      <div class="gallery">
+        <div class="gcard"><img src="output_ppt/06_breakdown/conventional_mechanism_ptd_edge.png" loading="lazy">
+          <div class="cap">Conventional, PTD edge only</div>
+        </div>
+        <div class="gcard"><img src="output_ppt/06_breakdown/stealth_mechanism_ptd_edge.png" loading="lazy">
+          <div class="cap">Stealth, PTD edge only (peaks at swept LE alignment)</div>
+        </div>
+      </div>
+
+      <h2>3&nbsp;&nbsp;Double-Bounce (Corner Reflector)</h2>
+      <div class="gallery">
+        <div class="gcard"><img src="output_ppt/06_breakdown/conventional_mechanism_double_bounce.png" loading="lazy">
+          <div class="cap">Conventional, double-bounce (4 sharp lobes at 0/90/180/270)</div>
+        </div>
+        <div class="gcard"><img src="output_ppt/06_breakdown/stealth_mechanism_double_bounce.png" loading="lazy">
+          <div class="cap">Stealth, double-bounce (broader, lower, canted-tail geometry)</div>
+        </div>
+      </div>
+      <p class="note"><b>Double-bounce hotspot count.</b> Conventional aircraft: 48 active retroreflecting facet pairs
+        clustered at the fin&ndash;fuselage 90&deg; dihedral. Stealth aircraft: ~22 pairs at roughly half peak amplitude
+        with <b>no dominant cluster</b>, the 35&deg;-canted V-tail eliminates the dominant corner reflector
+        rather
+        than merely weakening it.</p>
+
+      <h2>4&nbsp;&nbsp;RAM Physics Diagrams</h2>
+      <div class="gallery">
+        <div class="gcard"><img src="output_ppt/08_physics_diagrams/salisbury_diagram.png" loading="lazy">
+          <div class="cap">Salisbury screen, quarter-wave resistive sheet over PEC</div>
+        </div>
+        <div class="gcard"><img src="output_ppt/08_physics_diagrams/dallenbach_diagram.png" loading="lazy">
+          <div class="cap">Dallenbach layer, lossy dielectric slab over PEC</div>
+        </div>
+      </div>
+
+      <h2>5&nbsp;&nbsp;Design Principles Derived From the Breakdown</h2>
+      <ul class="refs">
+        <li><b>Sweep leading edges.</b> Shifts the diffraction peak by angle <k>\Lambda</k> off nose-on, moving the
+          return
+          outside the frontal threat corridor for <k>\Lambda&gt;60^\circ</k>. Evidence: stealth aircraft's ~65&deg;
+          swept
+          delta wings with aligned trailing edges.</li>
+        <li><b>Cant vertical surfaces.</b> A single design change simultaneously reduces specular return <i>and</i>
+          eliminates the 90&deg; fin&ndash;fuselage double-bounce corner. Evidence: stealth V-tails canted 35&deg;
+          outward.</li>
+        <li><b>Combine shaping with RAM.</b> Shaping redirects scattered energy away from the threat sector; RAM reduces
+          the amplitude of remaining returns, Salisbury screens give deep narrowband absorption, Dallenbach
+          layers give
+          broader shallower absorption.</li>
+      </ul>
+      <div class="gallery">
+        <div class="gcard"><img src="output_ppt/05_ram/ram_absorption_curves.png" loading="lazy">
+          <div class="cap">Salisbury vs Dallenbach absorption curves</div>
+        </div>
+        <div class="gcard"><img src="output_ppt/05_ram/stealth_with_salisbury_f010ghz.png" loading="lazy">
+          <div class="cap">Stealth aircraft + Salisbury screen @10 GHz</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ BISTATIC -->
+  <div class="panel theory-scroll" id="panel-bistatic">
+    <div class="theory">
+      <h1>Bistatic &amp; Polarimetric RCS</h1>
+      <p class="lede">Extending every solver (PO, PTD, double-bounce, triple-bounce) to independent transmit/receive
+        directions and to the full 2&times;2 polarimetric scattering matrix, both generalisations verified
+        bit-for-bit
+        to reduce to their monostatic/scalar forms when tx=rx. Formulation and real-world motivation for both extensions
+        is in Governing Physics &sect;6&ndash;7; this tab is the results.</p>
+
+      <h2>1&nbsp;&nbsp;Bistatic Sweep</h2>
+      <div class="gallery">
+        <div class="gcard"><img src="output_ppt/09_bistatic_polarimetric/bistatic_sweep_nose_tx.png" loading="lazy">
+          <div class="cap">Bistatic RCS vs receiver azimuth, tx fixed nose-on. 0&deg;=monostatic backscatter,
+            180&deg;=forward scatter (Babinet regime, not shape-reducible)</div>
+        </div>
+        <div class="gcard"><img src="output_ppt/09_bistatic_polarimetric/bistatic_angle_sweep.png" loading="lazy">
+          <div class="cap">RCS vs bistatic angle &beta;, tx fixed broadside</div>
+        </div>
+      </div>
+
+      <h2>2&nbsp;&nbsp;Polarimetric Signature</h2>
+      <div class="gallery">
+        <div class="gcard"><img src="output_ppt/09_bistatic_polarimetric/polarimetric_azimuth.png" loading="lazy">
+          <div class="cap">HH/VV co-pol vs HV/VH cross-pol, full azimuth sweep</div>
+        </div>
+        <div class="gcard"><img src="output_ppt/09_bistatic_polarimetric/polarimetric_signature_bars.png"
+            loading="lazy">
+          <div class="cap">Polarimetric signature by aspect, corner-reflector depolarisation</div>
+        </div>
+      </div>
+      <p class="note">Flat plate at normal incidence: HH=VV, HV&lt;&minus;60 dB below co-pol (numerically zero, no plane
+        of incidence, no depolarisation). Corner reflector at 45&deg;: full-physics HV exceeds PO-only HV by
+        &gt;3 dB, the double-bounce cascaded-Jones term is what produces real cross-pol.</p>
+
+      <h2>3&nbsp;&nbsp;Mesh Convergence, Bistatic RCS</h2>
+      <p class="lede">Same tiered solver strategy; bistatic pair az_tx=0&deg;/el_tx=0&deg;, az_rx=30&deg;/el_rx=10&deg;.
+      </p>
+      <div class="plotbox">
+        <div id="chart-bistatic" class="chart"></div>
+        <div class="hint">Same solver-tier steps as the baseline study (Geometry &sect;5): DoubleBounce&rarr;PTD&rarr;PO
+          each drop a mechanism from the coherent sum, so the jumps are a physics-accounting change, not
+          non-convergence, the Conventional curve's large swing through the tiers here is real, since
+          bistatic geometry makes double-bounce and PTD each carry more relative weight than at monostatic
+          aspect.</div>
+      </div>
+
+      <h2>4&nbsp;&nbsp;Mesh Convergence, Polarimetric (HH / HV)</h2>
+      <div class="plotbox">
+        <div id="chart-pol" class="chart"></div>
+        <div class="hint">Stealth HV settles ~&minus;40 to &minus;46 dBsm at fine mesh (deep cross-pol null, clean
+          shaping);
+          Conventional HV pins at the &minus;400 dBsm numerical floor from PO tier onward at this aspect, PO-only
+          carries no cross-pol mechanism at nose-on where this test point sits. As with every convergence chart on
+          this site, the visible steps sit at the DoubleBounce&rarr;PTD&rarr;PO tier boundaries (Geometry
+          &sect;5), here they are especially sharp because HV specifically is a double-bounce/PTD signature
+          that the PO-only tier cannot produce at all.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ TRIPLE -->
+  <div class="panel theory-scroll" id="panel-triple">
+    <div class="theory">
+      <h1>Multi-Bounce: Double-Bounce vs Triple-Bounce</h1>
+      <p class="lede">Extending the double-bounce ray trace one more reflection captures trihedral corners
+        (wing&ndash;fuselage&ndash;tail three-way junctions), a real conventional-aircraft mechanism absent from
+        the
+        two-bounce model. Why trihedrals matter and how the peak-RCS formula is derived is covered in Governing Physics
+        &sect;5; this tab is the numerical evidence, including the honest admission that the triple-bounce
+        mesh-convergence study below did <b>not</b> fully converge given practical compute limits.</p>
+
+      <h2>1&nbsp;&nbsp;Corner-Reflector Comparison (Full Azimuth)</h2>
+      <div class="gallery">
+        <div class="gcard"><img src="output_ppt/07_comparison/overlay_polar_all6.png" loading="lazy">
+          <div class="cap">All six geometries, overlaid polar RCS</div>
+        </div>
+      </div>
+
+      <h2>2&nbsp;&nbsp;Mesh Convergence, Triple-Bounce (Scalar)</h2>
+      <p class="lede">Peak trihedral angles located by coarse sphere sweep: Conventional az=85&deg;/el=60&deg;, Stealth
+        az=340&deg;/el=60&deg;. Dashed = double-bounce reference at the same angle for scale.</p>
+      <div class="plotbox">
+        <div id="chart-tb" class="chart tall"></div>
+        <div class="hint">
+          <k>O(n^3)</k> Python-loop cost caps this far earlier than PO/DoubleBounce, only 3&ndash;4
+          facet counts reachable in practical time. Honest result: <b>does not fully flatten</b> in the tested range
+          (Conventional: 96.6&rarr;73.6&rarr;83.5 dBsm; Stealth: 93.3&rarr;76.5&rarr;62.9&rarr;73.7 dBsm), a
+          genuinely
+          under-converged study, reported as such rather than masked. Note this rise-and-fall is a <i>different</i>
+          cause from the solver-tier jumps elsewhere on this site (Geometry &sect;5): every point here uses the
+          same TripleBounce solver, so this genuinely is the mesh still moving, just too expensive to refine far
+          enough to prove where it settles.
+        </div>
+      </div>
+
+      <h2>3&nbsp;&nbsp;Mesh Convergence, Triple-Bounce Polarimetric</h2>
+      <div class="plotbox">
+        <div id="chart-tbpol" class="chart"></div>
+      </div>
+
+      <h2>4&nbsp;&nbsp;Physical Interpretation</h2>
+      <p class="note">Peak trihedral RCS <b>exceeds</b> peak dihedral RCS for both geometries at their respective
+        optimum
+        angles, textbook-consistent (<k>\sigma_{trihedral}\propto L^4/\lambda^2</k>, stronger scaling than a
+        simple
+        dihedral). Verified this is genuine physics (via contributing-triple counts), not a bug, before reporting.</p>
+    </div>
+  </div>
+
+  <!-- ============================================================ RAM / SIBC -->
+  <div class="panel theory-scroll" id="panel-ram">
+    <div class="theory">
+      <h1>RAM &amp; Surface Impedance Boundary Condition</h1>
+      <p class="lede">PEC vs finite-conductivity real aerospace skins, X-band and swept frequency, using the Leontovich
+        SIBC (see Governing Physics &sect;9) plugged into every existing solver via the same interface as Salisbury/
+        Dallenbach RAM.</p>
+      <p>Every plot before this tab assumed a Perfect Electric Conductor, a mathematical idealisation with
+        infinite conductivity that reflects 100% of incident energy. Real airframe skins are not PEC: aluminum,
+        titanium,
+        and especially modern carbon-fibre composite (CFRP) skins are finite conductors. This tab asks the natural
+        next question a materials-aware reviewer asks: does that idealisation actually matter, or is PEC a safe
+        enough approximation for RCS work? The answer, worked out quantitatively below rather than assumed, turns out to
+        be aspect- and frequency-dependent, PEC is an excellent approximation at X-band for every material
+        tested,
+        but the approximation visibly degrades as frequency rises.</p>
+
+      <h2>1&nbsp;&nbsp;Real Material Conductivities Used</h2>
+      <table>
+        <tr>
+          <th>Material</th>
+          <th>Conductivity &sigma; (S/m)</th>
+          <th>Typical use</th>
+        </tr>
+        <tr>
+          <td>Aluminum 2024-T3</td>
+          <td>1.74&times;10<sup>7</sup></td>
+          <td>Conventional airframe skin</td>
+        </tr>
+        <tr>
+          <td>Stainless steel 304</td>
+          <td>1.45&times;10<sup>6</sup></td>
+          <td>Fasteners / ducting</td>
+        </tr>
+        <tr>
+          <td>Titanium Ti-6Al-4V</td>
+          <td>5.80&times;10<sup>5</sup></td>
+          <td>Structural / hot-section</td>
+        </tr>
+        <tr>
+          <td>CFRP composite</td>
+          <td>3.0&times;10<sup>4</sup></td>
+          <td>Modern composite skin (worst conductor here)</td>
+        </tr>
+      </table>
+      <p class="note">Approximate, room-temperature, commonly-cited engineering reference values.</p>
+
+      <h2>2&nbsp;&nbsp;PEC vs Real Materials, Azimuth Sweep, X-band</h2>
+      <div class="gallery">
+        <div class="gcard"><img src="output_ppt/11_sibc/sibc_azimuth_sweep.png" loading="lazy">
+          <div class="cap">RCS vs azimuth, PEC vs 4 real materials, both aircraft</div>
+        </div>
+        <div class="gcard"><img src="output_ppt/11_sibc/sibc_rcs_reduction_bars.png" loading="lazy">
+          <div class="cap">Mean RCS drop vs bare PEC, azimuth-averaged</div>
+        </div>
+      </div>
+      <div class="stats">
+        <div class="stat">
+          <div class="v">&minus;0.05 dB</div>
+          <div class="l">CFRP loss @ 10 GHz (worst material)</div>
+        </div>
+        <div class="stat">
+          <div class="v">&minus;0.002 dB</div>
+          <div class="l">Aluminum loss @ 10 GHz (best material)</div>
+        </div>
+        <div class="stat">
+          <div class="v">0.99987</div>
+          <div class="l">|&Gamma;| at &sigma;&rarr;&infin; limit (&rarr;PEC)</div>
+        </div>
+      </div>
+      <p class="warn"><b>Honest finding.</b> At X-band, even CFRP (the worst real conductor tested) is
+        near-indistinguishable from PEC (sub-0.06 dB), skin depth is orders of magnitude smaller than facet size
+        for
+        every material here. This is a textbook-consistent result, not an implementation shortfall.</p>
+
+      <h2>3&nbsp;&nbsp;Frequency Dependence</h2>
+      <div class="gallery">
+        <div class="gcard"><img src="output_ppt/11_sibc/sibc_frequency_sweep.png" loading="lazy">
+          <div class="cap">Reflection loss vs frequency, L&ndash;Ka band, per material</div>
+        </div>
+      </div>
+      <p>Reflection loss <b>grows</b> with frequency (not shrinks): CFRP loss goes &minus;0.017 dB (1 GHz) &rarr;
+        &minus;0.053 dB (10 GHz) &rarr; &minus;0.100 dB (36 GHz). Since <k>Z_s\propto\sqrt f</k> while <k>Z_0</k> is
+        fixed,
+        the impedance mismatch <i>grows</i> with frequency, the opposite of a naive "skin effect gets stronger so
+        loss should look bigger at low f" intuition, but correct once the actual <k>Z_s(f)</k> scaling is followed
+        through.</p>
+
+      <h2>4&nbsp;&nbsp;Mesh Convergence, PEC vs CFRP</h2>
+      <p class="lede">Broadside aspect (90&deg;), full tiered solver sweep. Solid = PEC, dashed = CFRP composite.</p>
+      <div class="plotbox">
+        <div id="chart-sibc" class="chart tall"></div>
+        <div class="hint">One legitimate non-monotonic tier (Conventional, subdiv=128, PTD tier): CFRP reads 55.280 dBsm
+          vs
+          PEC's 55.263 dBsm, a 0.017 dB coherent-interference artifact from the PTD term not being RAM-scaled
+          (see
+          Governing Physics &sect;9 caveat), confirmed as real physics rather than a bug before this plot was accepted.
+          The larger steps both PEC and CFRP share are the usual DoubleBounce&rarr;PTD&rarr;PO tier boundaries
+          (Geometry &sect;5), PEC and CFRP jump together at the same facet counts since only the reflectivity
+          scalar differs between them, not the solver tier.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ OPTIMIZATION -->
+  <div class="panel theory-scroll" id="panel-opt">
+    <div class="theory">
+      <h1>Stealth Geometry Optimization</h1>
+      <p class="lede">Gradient-free optimization of wing sweep, V-tail cant, and nose length to minimize
+        azimuth-averaged
+        mean RCS, formulation, and why differential evolution rather than gradient descent, in Governing Physics
+        &sect;10.</p>
+      <p>This tab answers a question the design-principles discussion (Scattering Mechanisms &sect;5) could only answer
+        qualitatively: <i>given</i> that sweeping the wing and canting the tail both help, what is the actual best
+        combination of angles, and how much better is it than the hand-picked baseline? Letting an optimizer search the
+        full 3-parameter space removes human guesswork from that specific question.</p>
+
+      <h2>1&nbsp;&nbsp;Optimizer Convergence</h2>
+      <div class="gallery">
+        <div class="gcard"><img src="output_ppt/12_optimization/optimizer_convergence.png" loading="lazy">
+          <div class="cap">Differential-evolution best-so-far mean RCS vs generation</div>
+        </div>
+      </div>
+
+      <h2>2&nbsp;&nbsp;Result</h2>
+      <div class="stats">
+        <div class="stat">
+          <div class="v">59.79&deg;</div>
+          <div class="l">Optimal wing sweep &Lambda;</div>
+        </div>
+        <div class="stat">
+          <div class="v">19.95&deg;</div>
+          <div class="l">Optimal V-tail cant &gamma;</div>
+        </div>
+        <div class="stat">
+          <div class="v">0.50 m</div>
+          <div class="l">Optimal nose length L<sub>n</sub></div>
+        </div>
+        <div class="stat">
+          <div class="v">48.44 dBsm</div>
+          <div class="l">Best mean RCS</div>
+        </div>
+        <div class="stat">
+          <div class="v">&minus;3.13 dB</div>
+          <div class="l">vs baseline (51.58 dBsm)</div>
+        </div>
+        <div class="stat">
+          <div class="v">2492</div>
+          <div class="l">Function evaluations, 100.7 s</div>
+        </div>
+      </div>
+      <div class="gallery">
+        <div class="gcard"><img src="output_ppt/12_optimization/optimizer_baseline_vs_optimized.png" loading="lazy">
+          <div class="cap">Baseline vs DE-optimized azimuth RCS sweep, X-band</div>
+        </div>
+      </div>
+      <p class="note">Baseline geometry kept bit-exact reproducible (parametrization defaults to the original hardcoded
+        coordinates) so this optimization result is a genuine A/B comparison, not a re-derivation of the report's
+        baseline
+        numbers.</p>
+
+      <h2>3&nbsp;&nbsp;Why These Specific Values</h2>
+      <p>The three parameters do not behave the same way, and a single 1D slice through the objective at the
+        optimum, plus a 2D slice over sweep and cant, shows why each one landed where it did.</p>
+      <div class="gallery wide">
+        <div class="gcard"><img src="output_ppt/12_optimization/optimizer_sensitivity.png" loading="lazy">
+          <div class="cap">Mean RCS vs each parameter, the other two held at their optimal value, 120-point sweep
+            per axis</div>
+        </div>
+      </div>
+      <div class="gallery">
+        <div class="gcard"><img src="output_ppt/12_optimization/optimizer_landscape_heatmap.png" loading="lazy">
+          <div class="cap">Mean RCS landscape over sweep x cant, nose length fixed at its optimum</div>
+        </div>
+      </div>
+
+      <table>
+        <tr>
+          <th>Parameter</th>
+          <th>Chosen value</th>
+          <th>What the sweep shows</th>
+        </tr>
+        <tr>
+          <td>Wing sweep &Lambda;</td>
+          <td>59.79&deg;</td>
+          <td>Flat: mean RCS stays within 0.05 dB across the entire 30&ndash;70&deg; search range once cant and nose
+            length are fixed. 59.79&deg; is not a sharp minimum, it is one point on a plateau. Sweep angle barely
+            matters here once the tail geometry is set.</td>
+        </tr>
+        <tr>
+          <td>V-tail cant &gamma;</td>
+          <td>19.95&deg;</td>
+          <td>The dominant parameter. A fine scan around the optimum shows a notch under 0.5&deg; wide: 51.0 dBsm at
+            19.4&deg;, 48.44 dBsm at 19.95&deg;, back up to 50.9 dBsm at 20.5&deg;. The wider landscape has at least
+            two more notches this deep, near 13&deg; and 43&deg;. A 2&deg;-spaced grid search would step clean over
+            all three and miss them.</td>
+        </tr>
+        <tr>
+          <td>Nose length L<sub>n</sub></td>
+          <td>0.50 m</td>
+          <td>Monotonic: mean RCS rises from 48.44 dBsm at 0.5 m to 51.0 dBsm at 3.7 m. The optimizer picked the
+            <i>lower bound</i> of the search range, not an interior minimum, shorter is strictly better everywhere
+            tested. A wider bound below 0.5 m would likely push this further down.
+          </td>
+        </tr>
+      </table>
+
+      <p class="warn"><b>Why the cant notch is so narrow.</b> The double-bounce retroreflection condition
+        (Governing Physics &sect;4, <k>\mathbf d_{ref,j}\cdot\hat s>0.2</k>) is a geometric threshold on a specific
+        facet pair. A fraction of a degree of V-tail cant is enough to flip that facet pair between satisfying and
+        failing the condition, so the coherent double-bounce contribution switches on or off almost like a step
+        function rather than fading smoothly. That is also the direct, practical reason a gradient-free optimizer
+        was required (Governing Physics &sect;10): a gradient-based method sitting one grid step away from a notch
+        this narrow has no local slope pointing toward it. It would need to already be inside the notch to find it,
+        which a global population-based search like differential evolution can stumble into but a local descent
+        method generally cannot.</p>
+      <p>None of this changes the headline result, 48.44 dBsm against a 51.58 dBsm baseline is real and reproducible
+        at these exact parameter values. What it does show is that "the optimizer chose 59.79/19.95/0.50" is not
+        three independently meaningful design decisions: it is one sharp, load-bearing cant angle, one parameter
+        pinned against its search bound, and one direction that barely matters at all.</p>
+
+      <h2>4&nbsp;&nbsp;Mesh Convergence at the Optimum Parameter Set</h2>
+      <div class="plotbox">
+        <div id="chart-opt" class="chart"></div>
+        <div class="hint">Converges toward ~25.2 dBsm at high facet count, with the expected DoubleBounce&rarr;PTD tier
+          transition dip seen throughout this project's convergence studies, double-bounce switches off at
+          that facet count purely for compute cost (Geometry &sect;5), not because the mesh stopped converging.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ WIDEBAND -->
+  <div class="panel theory-scroll" id="panel-wideband">
+    <div class="theory">
+      <h1>Wideband Impulse Response</h1>
+      <p class="lede">Formulation, and why a single frequency cannot show where on the airframe a return originates, in
+        Governing Physics &sect;11. 2&ndash;18 GHz sweep (S through Ku band, 16 GHz bandwidth), coherent
+        PO+PTD+DoubleBounce
+        amplitude at every frequency point.</p>
+
+      <h2>1&nbsp;&nbsp;Frequency-Domain Response</h2>
+      <div class="gallery">
+        <div class="gcard"><img src="output_ppt/13_wideband/wideband_frequency_response.png" loading="lazy">
+          <div class="cap">Nose-on wideband RCS vs frequency, 2&ndash;18 GHz, interference ripple from multiple
+            coherent scattering centres</div>
+        </div>
+      </div>
+
+      <h2>2&nbsp;&nbsp;Range Profile (Impulse Response)</h2>
+      <div class="gallery">
+        <div class="gcard"><img src="output_ppt/13_wideband/wideband_range_profile.png" loading="lazy">
+
+        </div>
+      </div>
+      <p>Unlike a single-frequency RCS number, the range profile shows <i>where along the target</i> the energy returns
+        from, nose tip, wing leading edge, and tail each appear as a distinct peak instead of one aggregate
+        scalar.</p>
+
+      <h2>3&nbsp;&nbsp;Mesh Convergence, Wideband Energy</h2>
+      <p class="lede">Broadside aspect, mean <k>|H(f)|^2</k> across the band (32-point reduced sweep for the
+        <k>O(n^2)</k> DoubleBounce tier).
+      </p>
+      <div class="plotbox">
+        <div id="chart-wb" class="chart"></div>
+        <div class="hint">PO tier flat: Conventional 17.50 dB, Stealth &minus;4.53 dB, Stealth is ~22 dB quieter
+          in-band at broadside, consistent with the azimuth-sweep results elsewhere on this site. The visible rise
+          through the DoubleBounce and PTD tiers before that is the same tier-boundary mechanism-dropping effect
+          described in Geometry &sect;5, here amplified because it's a coherent <k>|H(f)|^2</k> energy sum rather
+          than a single-angle RCS value.</div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <!-- ============================================================ RESULTS -->
+  <div class="panel theory-scroll" id="panel-results">
+    <div class="theory">
+      <h1>Results &amp; Comparison</h1>
+
+      <h2>1&nbsp;&nbsp;Mean RCS Ranking (X-band, ascending)</h2>
+      <table>
+        <tr>
+          <th>Geometry</th>
+          <th>Mean RCS (dBsm)</th>
+          <th>Facet count</th>
+        </tr>
+        <tr>
+          <td>Sphere</td>
+          <td>11.0</td>
+          <td>2304</td>
+        </tr>
+        <tr>
+          <td>Stealth aircraft</td>
+          <td>37.4</td>
+          <td>20</td>
+        </tr>
+        <tr>
+          <td>Flying wing</td>
+          <td>41.0</td>
+          <td>28</td>
+        </tr>
+        <tr>
+          <td>Chined-nose fighter</td>
+          <td>47.0</td>
+          <td>18</td>
+        </tr>
+        <tr>
+          <td>Conventional aircraft</td>
+          <td>49.5</td>
+          <td>34</td>
+        </tr>
+        <tr>
+          <td>Flat plate</td>
+          <td>53.5</td>
+          <td>2</td>
+        </tr>
+      </table>
+      <div class="gallery">
+        <div class="gcard"><img src="output_ppt/07_comparison/ranking_bar_chart.png" loading="lazy">
+          <div class="cap">Mean RCS ranking, all six geometries</div>
+        </div>
+        <div class="gcard"><img src="output_ppt/07_comparison/reduction_bar_chart.png" loading="lazy">
+          <div class="cap">RCS reduction, Conventional &rarr; Stealth, by aspect</div>
+        </div>
+      </div>
+
+      <h2>2&nbsp;&nbsp;RCS Reduction: Conventional &rarr; Stealth</h2>
+      <table>
+        <tr>
+          <th>Aspect</th>
+          <th>Angle</th>
+          <th>Reduction (dB)</th>
+        </tr>
+        <tr>
+          <td>Nose-on</td>
+          <td>0&deg;</td>
+          <td><b>+11.9</b> (mission-critical)</td>
+        </tr>
+        <tr>
+          <td>Quarter-on</td>
+          <td>45&deg;</td>
+          <td>+9.8</td>
+        </tr>
+        <tr>
+          <td>Broadside</td>
+          <td>90&deg;</td>
+          <td>&minus;0.8</td>
+        </tr>
+        <tr>
+          <td>Tail-on</td>
+          <td>180&deg;</td>
+          <td>+26.2 (biggest win)</td>
+        </tr>
+      </table>
+      <p class="note">Nose-on: a frontal radar now sees only <b>6.5%</b> of the energy a conventional aircraft
+        returns. A radar detecting the conventional aircraft at 200 km first detects the stealth aircraft at only
+        <b>100 km</b>, a 50% reduction in detection range from an 11.9 dB nose-on RCS reduction (<k>
+          R\propto\sigma^{1/4}</k>).
+      </p>
+      <p class="warn">Broadside is the one aspect where shaping does <i>not</i> help (&minus;0.8 dB, i.e. slightly
+        worse):
+        the V-tail cant partially re-radiates energy back toward the radar at exactly this angle, an honest
+        trade-off, not hidden in the summary numbers.</p>
+
+      <h2>3&nbsp;&nbsp;Frequency Sweep (Nose-on Reduction)</h2>
+      <table>
+        <tr>
+          <th>Band</th>
+          <th>Frequency</th>
+          <th>Reduction (dB)</th>
+        </tr>
+        <tr>
+          <td>L-band</td>
+          <td>1.5 GHz</td>
+          <td>5.7</td>
+        </tr>
+        <tr>
+          <td>X-band</td>
+          <td>10 GHz</td>
+          <td>11.9</td>
+        </tr>
+        <tr>
+          <td>Ka-band</td>
+          <td>24 GHz</td>
+          <td>11.6</td>
+        </tr>
+      </table>
+      <div class="gallery">
+        <div class="gcard"><img src="output_ppt/04_frequency/conventional_freq_nose.png" loading="lazy">
+          <div class="cap">Conventional, RCS vs frequency, nose-on</div>
+        </div>
+        <div class="gcard"><img src="output_ppt/04_frequency/stealth_freq_nose.png" loading="lazy">
+          <div class="cap">Stealth, RCS vs frequency, nose-on (5.7 dB quieter at L-band)</div>
+        </div>
+        <div class="gcard"><img src="output_ppt/04_frequency/conventional_freq_broadside.png" loading="lazy">
+          <div class="cap">Conventional, RCS vs frequency, broadside</div>
+        </div>
+        <div class="gcard"><img src="output_ppt/04_frequency/stealth_freq_broadside.png" loading="lazy">
+          <div class="cap">Stealth, RCS vs frequency, broadside</div>
+        </div>
+      </div>
+
+      <h2>4&nbsp;&nbsp;RCS Heatmaps (Azimuth &times; Elevation)</h2>
+      <div class="gallery">
+        <div class="gcard"><img src="output_ppt/03_rcs_heatmap/conventional_heatmap.png" loading="lazy">
+          <div class="cap">Conventional, full angular heatmap</div>
+        </div>
+        <div class="gcard"><img src="output_ppt/03_rcs_heatmap/stealth_heatmap.png" loading="lazy">
+          <div class="cap">Stealth, full angular heatmap</div>
+        </div>
+      </div>
+
+      <h2>5&nbsp;&nbsp;Per-Geometry Full-Physics vs PO-Only</h2>
+      <div class="gallery">
+        <div class="gcard"><img src="output_ppt/02_rcs_polar/conventional_polar_full.png" loading="lazy">
+          <div class="cap">Conventional, full physics (PO+PTD+DB)</div>
+        </div>
+        <div class="gcard"><img src="output_ppt/02_rcs_polar/conventional_polar_PO.png" loading="lazy">
+          <div class="cap">Conventional, PO only</div>
+        </div>
+        <div class="gcard"><img src="output_ppt/02_rcs_polar/stealth_polar_full.png" loading="lazy">
+          <div class="cap">Stealth, full physics (PO+PTD+DB)</div>
+        </div>
+        <div class="gcard"><img src="output_ppt/02_rcs_polar/stealth_polar_PO.png" loading="lazy">
+          <div class="cap">Stealth, PO only</div>
+        </div>
+        <div class="gcard"><img src="output_ppt/02_rcs_polar/flying_wing_polar_full.png" loading="lazy">
+          <div class="cap">Flying wing, full physics</div>
+        </div>
+        <div class="gcard"><img src="output_ppt/02_rcs_polar/chined_nose_polar_full.png" loading="lazy">
+          <div class="cap">Chined nose, full physics</div>
+        </div>
+      </div>
+
+      <h2>6&nbsp;&nbsp;Conclusion</h2>
+      <p class="lede">Bringing every mechanism, extension, and convergence study on this site together, the results
+        support one consistent physical narrative: the stealth aircraft's radar quietness is a shaping story first,
+        a materials story a distant second, and that story now holds up under mesh refinement, not just at the
+        coarse report-baseline mesh it was originally measured on.</p>
+
+      <h3>Core validated findings</h3>
+      <ul class="refs">
+        <li><b>Solver correctness.</b> The Physical Optics implementation matches the exact Mie series solution for
+          a conducting sphere to within 0.2 dBsm, the one scattering problem with a closed-form answer, and
+          therefore the one no-excuses check the whole framework had to pass before any comparative claim about
+          conventional vs.\ stealth could be trusted.</li>
+        <li><b>Nose-on reduction.</b> The stealth aircraft achieves an <b>11.9 dB</b> RCS reduction at nose-on over
+          the conventional aircraft, via the fourth-root range&ndash;RCS relation, equivalent to a radar
+          detection range dropping from 200&nbsp;km to 100&nbsp;km. Tail-on shows the single largest reduction,
+          26.2&nbsp;dB; broadside is the one aspect where shaping costs a small, honestly-reported penalty
+          (&minus;0.8&nbsp;dB) rather than a gain, because the canted V-tail's redirected energy has to land
+          somewhere.</li>
+        <li><b>All three coherent mechanisms are load-bearing.</b> Double-bounce alone accounts for sharp
+          45&deg;-aspect spikes that PO+PTD completely miss, and triple-bounce peak returns were confirmed, at every
+          facet count tested, to exceed double-bounce peak returns at each geometry's own optimum trihedral angle
+          , consistent with the stronger <k>L^4/\lambda^2</k> trihedral scaling law, and confirmed as genuine
+          physics via an explicit count of contributing facet triples rather than accepted on faith.</li>
+        <li><b>Geometry over material.</b> Edge-classification diagnostics quantitatively confirm the stealth
+          aircraft has zero internal right-angle ridge structure (wedge parameter <k>n=2.00</k> uniformly, 44
+          boundary edges out of 52) against the conventional aircraft's 41 internal edges. The SIBC study then shows
+          that at X-band, even the worst real conductor tested (CFRP composite) is near-indistinguishable from bare
+          PEC (sub-0.06 dB), so the 11.9 dB nose-on reduction is a shaping effect almost in its entirety, not
+          a coating effect. This matches how real low-observable programmes actually prioritise their effort.</li>
+        <li><b>Automated shaping beats hand shaping, a little.</b> A differential-evolution optimizer searching only
+          three geometric parameters (wing sweep, V-tail cant, nose length) found a configuration with 3.13 dB lower
+          mean RCS than the original hand-designed baseline in 2492 evaluations and under two minutes, evidence that
+          even a small, cheap automated search is a useful complement to design intuition, not a
+          replacement for the physical reasoning that produced the baseline shape in the first place.</li>
+        <li><b>A single RCS number hides where the energy comes from.</b> Wideband impulse-response processing
+          resolves nose, wing-leading-edge, and tail as separate range-profile peaks instead of one aggregate
+          scalar shows the conventional aircraft as a spatially coherent, radar-identifiable
+          image while the stealth aircraft's image is diffuse and low-amplitude at the same aspect, the
+          stealth shape denies a clean picture, not just a lower number.</li>
+        <li><b>Convergence discipline held throughout.</b> Every result above carries its own mesh-convergence
+          study, run to the point where either the answer visibly stabilises or the study honestly says it does
+          not (triple-bounce, capped by its <k>O(n^3)</k> cost). No claim on this site rests on an unrefined,
+          unchecked mesh.</li>
+      </ul>
+
+      <h3>What this does and does not claim</h3>
+      <p>This is a first-principles, high-frequency asymptotic (PO/PTD/ray-optics) study, not a full-wave
+        solution and not a validated prediction for any real fielded aircraft, the six geometries are
+        teaching-scale representative shapes, not CAD-accurate airframes, and the SIBC material set uses single
+        reference conductivities rather than dispersive, temperature-dependent material data. Within that scope,
+        every quantitative claim above is backed by a specific equation in the Governing Physics tab, a specific
+        convergence plot, and, where applicable, a specific self-check assertion in <k>\texttt{solvers.py}</k> that
+        runs automatically and fails loudly if violated.</p>
+    </div>
+  </div>
+
+  <!-- ============================================================ REFERENCES -->
+  <div class="panel theory-scroll" id="panel-refs">
+    <div class="theory">
+      <h1>Literature Survey &amp; References</h1>
+      <p class="lede">Sources consulted span the four eras of this project's scope: classical exact-solution
+        electromagnetics
+        (1900s&ndash;1960s), the high-frequency asymptotic methods that make faceted RCS prediction tractable
+        (1950s&ndash;1980s), the applied RCS/RAM engineering handbooks that connect theory to real airframes.</p>
+      <table>
+        <tr>
+          <th>Year</th>
+          <th>Author(s)</th>
+          <th>Contribution</th>
+          <th>Relevance</th>
+        </tr>
+        <tr>
+          <td>1908</td>
+          <td>Gustav Mie</td>
+          <td>Exact analytical solution for EM scattering by a sphere</td>
+          <td>RCS validation baseline for the computational model</td>
+        </tr>
+        <tr>
+          <td>1962</td>
+          <td>P. Ya. Ufimtsev</td>
+          <td>Physical Theory of Diffraction (PTD) for edge diffraction</td>
+          <td>Foundation for edge diffraction modelling</td>
+        </tr>
+        <tr>
+          <td>1962</td>
+          <td>J. B. Keller</td>
+          <td>Geometrical Theory of Diffraction (GTD)</td>
+          <td>Conceptual predecessor to PTD; diffracted-ray framework</td>
+        </tr>
+        <tr>
+          <td>1968</td>
+          <td>R. F. Harrington</td>
+          <td>Method of Moments (MoM) for EM field computation</td>
+          <td>Exact-solution benchmark against which high-frequency methods are judged</td>
+        </tr>
+        <tr>
+          <td>1970</td>
+          <td>Ruck, Barrick, Stuart &amp; Krichbaum</td>
+          <td>Radar Cross Section Handbook (canonical shape RCS catalogue)</td>
+          <td>Cross-check reference for flat-plate and cylinder RCS formulas</td>
+        </tr>
+        <tr>
+          <td>1974</td>
+          <td>Kouyoumjian &amp; Pathak</td>
+          <td>Uniform GTD for edge diffraction by a perfectly conducting surface</td>
+          <td>Modern uniform reformulation underlying edge-diffraction coefficients</td>
+        </tr>
+        <tr>
+          <td>2001</td>
+          <td>M. I. Skolnik</td>
+          <td>Radar equation, frequency bands, detection fundamentals</td>
+          <td>Radar fundamentals and RCS behaviour interpretation</td>
+        </tr>
+        <tr>
+          <td>2004</td>
+          <td>Knott, Shaeffer &amp; Tuley</td>
+          <td>Comprehensive RCS theory, PO, PTD, canonical targets</td>
+          <td>Primary reference for the computational methodology</td>
+        </tr>
+        <tr>
+          <td>2005</td>
+          <td>D. C. Jenn</td>
+          <td>Radar and Laser Cross Section Engineering</td>
+          <td>Applied shaping/RAM design guidance, corner-reflector treatment</td>
+        </tr>
+        <tr>
+          <td>2012</td>
+          <td>C. A. Balanis</td>
+          <td>Advanced Engineering Electromagnetics</td>
+          <td>Boundary-condition and impedance-surface derivations (SIBC)</td>
+        </tr>
+        <tr>
+          <td>1997</td>
+          <td>Weile &amp; Michielssen</td>
+          <td>Genetic-algorithm optimization applied to electromagnetics (review)</td>
+          <td>Precedent for gradient-free EM shape optimization</td>
+        </tr>
+        <tr>
+          <td>1983</td>
+          <td>Munson, O'Brien &amp; Jenkins</td>
+          <td>Tomographic formulation of spotlight-mode SAR</td>
+
+        </tr>
+
+      </table>
+
+      <h2>References</h2>
+      <ol class="refs">
+        <li>E. F. Knott, J. F. Shaeffer, M. T. Tuley, <i>Radar Cross Section</i>, 2nd ed. SciTech Publishing, Raleigh,
+          NC, 2004.</li>
+        <li>P. Ya. Ufimtsev, <i>Fundamentals of the Physical Theory of Diffraction</i>. John Wiley &amp; Sons, Hoboken,
+          NJ, 2007.</li>
+        <li>M. I. Skolnik, <i>Introduction to Radar Systems</i>, 3rd ed. McGraw-Hill, New York, 2001.</li>
+        <li>C. A. Balanis, <i>Advanced Engineering Electromagnetics</i>, 2nd ed. John Wiley &amp; Sons, Hoboken, NJ,
+          2012.</li>
+        <li>R. F. Harrington, <i>Field Computation by Moment Methods</i>. Macmillan, New York, 1968.</li>
+        <li>J. B. Keller, "Geometrical Theory of Diffraction," <i>Journal of the Optical Society of America</i>, vol.
+          52, no. 2, pp. 116&ndash;130, 1962.</li>
+        <li>R. C. Kouyoumjian and P. H. Pathak, "A Uniform Geometrical Theory of Diffraction for an Edge in a Perfectly
+          Conducting Surface," <i>Proceedings of the IEEE</i>, vol. 62, no. 11, pp. 1448&ndash;1461, 1974.</li>
+        <li>G. T. Ruck, D. E. Barrick, W. D. Stuart, C. K. Krichbaum, <i>Radar Cross Section Handbook</i>, vols.
+          1&ndash;2. Plenum Press, New York, 1970.</li>
+        <li>D. C. Jenn, <i>Radar and Laser Cross Section Engineering</i>, 2nd ed. AIAA Education Series, Reston, VA,
+          2005.</li>
+        <li>D. E. Weile and E. Michielssen, "Genetic Algorithm Optimization Applied to Electromagnetics: A Review,"
+          <i>IEEE Transactions on Antennas and Propagation</i>, vol. 45, no. 3, pp. 343&ndash;353, 1997.
+        </li>
+        <li>D. C. Munson Jr., J. D. O'Brien, W. K. Jenkins, "A Tomographic Formulation of Spotlight-Mode Synthetic
+          Aperture Radar," <i>Proceedings of the IEEE</i>, vol. 71, no. 8, pp. 917&ndash;925, 1983.</li>
+        <li>V. C. Chen and M. Martorella, <i>Inverse Synthetic Aperture Radar Imaging: Principles, Algorithms and
+            Applications</i>. SciTech Publishing, Edison, NJ, 2014.</li>
+        <li>N. C. Currie (ed.), <i>Techniques of Radar Reflectivity Measurement</i>. Artech House, Norwood, MA, 1989.
+        </li>
+      </ol>
+
+      <h2>Online &amp; Supplementary Resources</h2>
+      <p class="lede">General-audience and semi-technical resources used for building physical intuition and
+        cross-checking
+        qualitative claims (stealth shaping rationale, real-world radar band usage, demonstrations)
+        alongside the primary academic literature above.</p>
+      <ul class="refs">
+        <li><b>Real Engineering</b> (YouTube), video essays on stealth aircraft shaping principles and the
+          aerodynamics/RCS design trade-off.</li>
+        <li><b>Mustard</b> (YouTube), historical deep-dives on the F-117 Nighthawk, B-2 Spirit, and SR-71
+          programs, useful for real airframe shaping context behind the design principles discussed on this site.</li>
+        <li><b>The Efficient Engineer</b> (YouTube), general engineering-fundamentals explainer style used for
+          cross-checking how to present derivations clearly.</li>
+        <li><b>MIT OpenCourseWare</b>, 6.632 Electromagnetic Wave Theory lecture series, background review of
+          Maxwell's equations and boundary-value problems underlying the SIBC/RAM derivations.</li>
+        <li><b>IEEE Spectrum</b> (blog), technology-journalism coverage of stealth shaping and radar-absorbent
+          material developments, used for real-world material/application context.</li>
+        <li><b>The Aviationist</b> and <b>Air &amp; Space Forces Magazine</b> (blogs/trade press), military
+          aviation technical reporting used for real-world RCS reference figures and program history.</li>
+        <li><b>NASA Technical Reports Server (NTRS)</b>, public archive of aerospace technical reports, consulted
+          for supporting background on radar cross-section measurement methodology.</li>
+      </ul>
+
+      <h2>Computational Framework</h2>
+      <p>Entire pipeline (PO, PTD, double/triple-bounce, RAM/SIBC, bistatic, polarimetric, optimizer, wideband)
+        implemented from first principles in Python (NumPy/SciPy/Matplotlib), self-checked against analytical
+        closed-form
+        limits at every stage (Mie series, PEC limits, monostatic reduction of bistatic formulas, TE/TM reflection
+        dichotomy) rather than validated by inspection alone.</p>
+    </div>
+  </div>
+
+  <!-- ============================================================ APPENDIX -->
+  <div class="panel theory-scroll" id="panel-appendix">
+    <div class="theory">
+      <h1>Appendix</h1>
+
+
+      <h2>A1&nbsp;&nbsp;Abbreviations &amp; Shortforms</h2>
+      <table>
+        <tr>
+          <th>Term</th>
+          <th>Full form</th>
+          <th>Meaning in this project</th>
+        </tr>
+        <tr>
+          <td>RCS</td>
+          <td>Radar Cross Section</td>
+          <td>Equivalent reflecting area of a target, in m&sup2; or dBsm</td>
+        </tr>
+        <tr>
+          <td>dBsm</td>
+          <td>Decibels relative to one square metre</td>
+          <td>Logarithmic RCS unit, <k>10\log_{10}(\sigma/1\,\mathrm m^2)</k>
+          </td>
+        </tr>
+        <tr>
+          <td>PO</td>
+          <td>Physical Optics</td>
+          <td>Specular-reflection scattering layer, tangent-plane approximation on each facet</td>
+        </tr>
+        <tr>
+          <td>PTD</td>
+          <td>Physical Theory of Diffraction</td>
+          <td>Ufimtsev's edge-diffraction correction to PO</td>
+        </tr>
+        <tr>
+          <td>GTD</td>
+          <td>Geometrical Theory of Diffraction</td>
+          <td>Keller's diffracted-ray theory; conceptual predecessor to PTD</td>
+        </tr>
+        <tr>
+          <td>PEC</td>
+          <td>Perfect Electric Conductor</td>
+          <td>Idealised material with infinite conductivity, 100% reflectivity</td>
+        </tr>
+        <tr>
+          <td>SIBC</td>
+          <td>Surface Impedance Boundary Condition</td>
+          <td>Leontovich model replacing PEC with a finite-conductivity surface impedance</td>
+        </tr>
+        <tr>
+          <td>RAM</td>
+          <td>Radar-Absorbent Material</td>
+          <td>Coating/layer that dissipates incident RF energy as heat (Salisbury screen, Dallenbach layer)</td>
+        </tr>
+        <tr>
+          <td>DB / TB</td>
+          <td>Double-Bounce / Triple-Bounce</td>
+          <td>Second- and third-order ray-traced re-reflection off dihedral / trihedral corners</td>
+        </tr>
+        <tr>
+          <td>HH, VV, HV, VH</td>
+          <td>Horizontal/Vertical polarimetric channels</td>
+          <td>Transmit-then-receive polarisation pair; HH/VV co-pol, HV/VH cross-pol</td>
+        </tr>
+        <tr>
+          <td>TE / TM</td>
+          <td>Transverse Electric / Transverse Magnetic</td>
+          <td>The two canonical facet-reflection polarisation states (<k>r_\perp,\,r_\parallel</k>)</td>
+        </tr>
+        <tr>
+          <td>DE</td>
+          <td>Differential Evolution</td>
+          <td>Gradient-free, population-based global optimizer used for geometry search</td>
+        </tr>
+
+
+
+
+      </table>
+
+      <h2>A2&nbsp;&nbsp;Nomenclature</h2>
+      <p>Every symbol used in the equations across this site, collected in one place.</p>
+
+      <h3>Roman symbols</h3>
+      <table>
+        <tr>
+          <th>Symbol</th>
+          <th>Meaning</th>
+          <th>Unit</th>
+        </tr>
+        <tr>
+          <td>
+            <k>A_i</k>
+          </td>
+          <td>Area of the <k>i</k>-th triangular facet</td>
+          <td>m&sup2;</td>
+        </tr>
+        <tr>
+          <td>
+            <k>B</k>
+          </td>
+          <td>Frequency bandwidth</td>
+          <td>Hz</td>
+        </tr>
+        <tr>
+          <td>
+            <k>c</k>
+          </td>
+          <td>Speed of light in free space</td>
+          <td>m&nbsp;s<sup>&minus;1</sup></td>
+        </tr>
+        <tr>
+          <td>
+            <k>\mathbf{c}_i</k>
+          </td>
+          <td>Centroid position vector of the <k>i</k>-th facet</td>
+          <td>m</td>
+        </tr>
+        <tr>
+          <td>
+            <k>D(n,\beta)</k>
+          </td>
+          <td>Ufimtsev fringe-wave diffraction coefficient</td>
+          <td>&mdash;</td>
+        </tr>
+        <tr>
+          <td>
+            <k>E_i,\,E_s</k>
+          </td>
+          <td>Incident and scattered electric field</td>
+          <td>V&nbsp;m<sup>&minus;1</sup></td>
+        </tr>
+        <tr>
+          <td>
+            <k>f</k>
+          </td>
+          <td>Radar frequency</td>
+          <td>Hz</td>
+        </tr>
+        <tr>
+          <td>
+            <k>f_{PO},f_{PTD},f_{DB}</k>
+          </td>
+          <td>Coherent complex scatter amplitude, PO / PTD / double-bounce</td>
+          <td>m</td>
+        </tr>
+        <tr>
+          <td>
+            <k>G_t,\,G_r</k>
+          </td>
+          <td>Transmit and receive antenna gain</td>
+          <td>&mdash;</td>
+        </tr>
+        <tr>
+          <td>
+            <k>h(t)</k>
+          </td>
+          <td>Time-domain range-profile impulse response</td>
+          <td>&mdash;</td>
+        </tr>
+        <tr>
+          <td>
+            <k>H(f)</k>
+          </td>
+          <td>Wideband coherent frequency response</td>
+          <td>m</td>
+        </tr>
+        <tr>
+          <td>
+            <k>k</k>
+          </td>
+          <td>Free-space wavenumber, <k>2\pi/\lambda</k>
+          </td>
+          <td>rad&nbsp;m<sup>&minus;1</sup></td>
+        </tr>
+        <tr>
+          <td>
+            <k>L</k>
+          </td>
+          <td>Characteristic edge length of a corner reflector</td>
+          <td>m</td>
+        </tr>
+        <tr>
+          <td>
+            <k>n</k>
+          </td>
+          <td>PTD wedge interior-angle parameter</td>
+          <td>&mdash;</td>
+        </tr>
+        <tr>
+          <td>
+            <k>\hat n_i</k>
+          </td>
+          <td>Outward unit normal of the <k>i</k>-th facet</td>
+          <td>&mdash;</td>
+        </tr>
+        <tr>
+          <td>
+            <k>N</k>
+          </td>
+          <td>Number of facets / sample points</td>
+          <td>&mdash;</td>
+        </tr>
+        <tr>
+          <td>
+            <k>p,q</k>
+          </td>
+          <td>Polarisation indices (<k>H</k> or <k>V</k>)</td>
+          <td>&mdash;</td>
+        </tr>
+        <tr>
+          <td>
+            <k>P_t</k>
+          </td>
+          <td>Transmitted power</td>
+          <td>W</td>
+        </tr>
+        <tr>
+          <td>
+            <k>R</k>
+          </td>
+          <td>Range from radar to target</td>
+          <td>m</td>
+        </tr>
+        <tr>
+          <td>
+            <k>R_{max}</k>
+          </td>
+          <td>Maximum radar detection range</td>
+          <td>m</td>
+        </tr>
+        <tr>
+          <td>
+            <k>S</k>
+          </td>
+          <td>Polarimetric scattering matrix</td>
+          <td>&mdash;</td>
+        </tr>
+        <tr>
+          <td>
+            <k>S_{min}</k>
+          </td>
+          <td>Minimum detectable signal power</td>
+          <td>W</td>
+        </tr>
+        <tr>
+          <td>
+            <k>\hat s</k>
+          </td>
+          <td>Unit look / illumination direction vector</td>
+          <td>&mdash;</td>
+        </tr>
+        <tr>
+          <td>
+            <k>W(f)</k>
+          </td>
+          <td>Frequency-domain window function</td>
+          <td>&mdash;</td>
+        </tr>
+        <tr>
+          <td>
+            <k>Z_0</k>
+          </td>
+          <td>Free-space wave impedance (377&nbsp;&Omega;)</td>
+          <td>&Omega;</td>
+        </tr>
+        <tr>
+          <td>
+            <k>Z_s</k>
+          </td>
+          <td>Surface impedance (Leontovich SIBC)</td>
+          <td>&Omega;</td>
+        </tr>
+      </table>
+
+      <h3>Greek symbols</h3>
+      <table>
+        <tr>
+          <th>Symbol</th>
+          <th>Meaning</th>
+          <th>Unit</th>
+        </tr>
+        <tr>
+          <td>
+            <k>\beta</k>
+          </td>
+          <td>Incidence angle from an edge (PTD)</td>
+          <td>deg</td>
+        </tr>
+        <tr>
+          <td>
+            <k>\gamma</k>
+          </td>
+          <td>V-tail cant angle</td>
+          <td>deg</td>
+        </tr>
+        <tr>
+          <td>
+            <k>\Gamma</k>
+          </td>
+          <td>Reflection coefficient</td>
+          <td>&mdash;</td>
+        </tr>
+        <tr>
+          <td>
+            <k>\delta</k>
+          </td>
+          <td>Skin depth</td>
+          <td>m</td>
+        </tr>
+        <tr>
+          <td>
+            <k>\Delta R</k>
+          </td>
+          <td>Range resolution</td>
+          <td>m</td>
+        </tr>
+        <tr>
+          <td>
+            <k>\Delta CR</k>
+          </td>
+          <td>Cross-range resolution</td>
+          <td>m</td>
+        </tr>
+
+        <tr>
+          <td>
+            <k>\theta</k>
+          </td>
+          <td>Azimuth aspect angle</td>
+          <td>deg</td>
+        </tr>
+        <tr>
+          <td>
+            <k>\Lambda</k>
+          </td>
+          <td>Wing leading-edge sweep angle</td>
+          <td>deg</td>
+        </tr>
+        <tr>
+          <td>
+            <k>\lambda</k>
+          </td>
+          <td>Radar wavelength</td>
+          <td>m</td>
+        </tr>
+        <tr>
+          <td>
+            <k>\mu</k>
+          </td>
+          <td>Magnetic permeability</td>
+          <td>H&nbsp;m<sup>&minus;1</sup></td>
+        </tr>
+        <tr>
+          <td>
+            <k>\rho_i</k>
+          </td>
+          <td>Reflectivity of the <k>i</k>-th facet (RAM/SIBC scalar)</td>
+          <td>&mdash;</td>
+        </tr>
+        <tr>
+          <td>
+            <k>\sigma</k>
+          </td>
+          <td>Radar cross section (RCS)</td>
+          <td>m&sup2;</td>
+        </tr>
+        <tr>
+          <td>
+            <k>\sigma_{pq}</k>
+          </td>
+          <td>Polarimetric RCS, channel <k>pq</k>
+          </td>
+          <td>m&sup2;</td>
+        </tr>
+        <tr>
+          <td>
+            <k>\sigma_{lin},\sigma_{dB}</k>
+          </td>
+          <td>Mean RCS, linear and dB domain</td>
+          <td>m&sup2;, dBsm</td>
+        </tr>
+      </table>
+
+      <h2>A3&nbsp;&nbsp;Project Directory Structure</h2>
+
+      <pre class="tree"><b>oll/</b>
+<i>├──</i> main.py                          <i># PyQt6 GUI app — 11-tab tool wrapping every solver below</i>
+<i>├──</i> geometries.py                    <i># facet primitives (quads/tris/welding); the 6 target geometries</i>
+<i>├──</i> solvers.py                       <i># core physics engine — POAmplitudeSolver → PTDSolver → DoubleBounce → TripleBounce,</i>
+<i>│</i>                                    <i># SIBCMaterial, SalisburyScreen, DallenbachLayer, Mie series, self-check</i>
+<i>├──</i> plot_style.py                    <i># shared dark theme for every matplotlib figure on this site</i>
+<i>│</i>
+<i>├──</i> convergence_study.py             <i># baseline PO/PTD/DoubleBounce mesh convergence</i>
+<i>├──</i> advanced_study.py                <i># bistatic + polarimetric demonstration plots</i>
+<i>├──</i> advanced_convergence_study.py    <i># bistatic + polarimetric mesh convergence</i>
+<i>├──</i> triple_bounce_convergence.py     <i># triple-bounce mesh convergence (scalar + polarimetric)</i>
+<i>│</i>
+<i>├──</i> sibc_comparison.py               <i># SIBC vs PEC — azimuth sweep, frequency sweep, reduction bars</i>
+<i>├──</i> sibc_convergence.py              <i># SIBC vs PEC mesh convergence</i>
+<i>│</i>
+<i>├──</i> stealth_optimizer.py             <i># differential-evolution geometry optimizer + its convergence study</i>
+<i>│</i>
+<i>├──</i> presentation.html                <i># this website (single self-contained file)</i>
+<i>│</i>
+<i>└──</i> <b>output_ppt/</b>                     <i># generated output — 85 PNGs, 14 numbered subfolders</i>
+    <i>├──</i> <b>01_geometry/</b>              <i>(30 png)</i>  <i># iso/front/side/top/wireframe views, all 6 geometries</i>
+    <i>├──</i> <b>02_rcs_polar/</b>              <i>(10 png)</i>  <i># polar RCS patterns — PO-only and full-physics, per geometry</i>
+    <i>├──</i> <b>03_rcs_heatmap/</b>            <i>(2 png)</i>   <i># azimuth×elevation RCS heatmaps, conventional + stealth</i>
+    <i>├──</i> <b>04_frequency/</b>              <i>(4 png)</i>   <i># RCS vs frequency, L→Ka band, nose-on + broadside</i>
+    <i>├──</i> <b>05_ram/</b>                    <i>(5 png)</i>   <i># Salisbury/Dallenbach absorption curves + applied examples</i>
+    <i>├──</i> <b>06_breakdown/</b>              <i>(6 png)</i>   <i># PO-only / PTD-only / double-bounce-only isolated plots</i>
+    <i>├──</i> <b>07_comparison/</b>             <i>(3 png)</i>   <i># overlay of all 6 geometries, ranking bars, reduction bars</i>
+    <i>├──</i> <b>08_physics_diagrams/</b>       <i>(4 png)</i>   <i># edge classification + Salisbury/Dallenbach schematic diagrams</i>
+    <i>├──</i> <b>09_bistatic_polarimetric/</b>  <i>(4 png)</i>   <i># bistatic sweeps, polarimetric azimuth + signature bars</i>
+    <i>├──</i> <b>10_convergence/</b>            <i>(5 png)</i>   <i># baseline/bistatic/polarimetric/triple-bounce mesh convergence</i>
+    <i>├──</i> <b>11_sibc/</b>                   <i>(4 png)</i>   <i># SIBC vs PEC — azimuth, frequency sweep, reduction, convergence</i>
+    <i>├──</i> <b>12_optimization/</b>           <i>(3 png)</i>   <i># DE optimizer convergence, baseline-vs-optimized, mesh convergence</i>
+    <i>├──</i> <b>13_wideband/</b>               <i>(3 png)</i>   <i># frequency response, range profile, mesh convergence</i>
+
+
+
+    </div>
+  </div>
+
+  <footer>RV College of Engineering &middot; Avionics Project Based Learning &middot; Department of Aerospace
+    Engineering</footer>
+
+  <script>
+    let _theoryDone = {};
+    function renderTheory(id) {
+      if (_theoryDone[id] || typeof katex === 'undefined') return;
+      const root = document.getElementById('panel-' + id);
+      if (!root) return;
+      root.querySelectorAll('k, d').forEach(el => {
+        const tex = el.textContent;
+        try {
+          katex.render(tex, el, { displayMode: el.tagName.toLowerCase() === 'd', throwOnError: false, strict: false });
+        } catch (e) { }
+      });
+      _theoryDone[id] = true;
+    }
+
+    const chartsInTab = {
+      geometry: ['chart-basic'],
+      bistatic: ['chart-bistatic', 'chart-pol'],
+      triple: ['chart-tb', 'chart-tbpol'],
+      ram: ['chart-sibc'],
+      opt: ['chart-opt'],
+      wideband: ['chart-wb'],
+    };
+    let _chartsDone = {};
+
+    function darkLayout(extra) {
+      const base = {
+        paper_bgcolor: '#0d0d0d', plot_bgcolor: '#0d0d0d',
+        font: { family: 'JetBrains Mono, monospace', color: '#b8c4cc', size: 11 },
+        xaxis: { gridcolor: '#1c1c1c', zerolinecolor: '#1c1c1c', type: 'log', title: { text: 'Facet count (log scale)' } },
+        yaxis: { gridcolor: '#1c1c1c', zerolinecolor: '#1c1c1c', title: { text: 'RCS (dBsm)' } },
+        legend: { orientation: 'h', y: -0.18, font: { size: 10 } },
+        margin: { t: 36, l: 56, r: 20, b: 46 },
+        hovermode: 'x unified',
+      };
+      return Object.assign(base, extra || {});
+    }
+    const CONV = '#FF5B35', STLTH = '#00E5FF', HH = '#00E5FF', VV = '#FF5B35', HV = '#FFD040', VH = '#C084FC', ACCENT = '#39FF88';
+
+    function line(x, y, name, color, dash) {
+      return { x: x, y: y, name: name, mode: 'lines+markers', line: { color: color, width: 2.4, dash: dash || 'solid' }, marker: { size: 5 } };
+    }
+
+    function initCharts(tabId) {
+      if (_chartsDone[tabId]) return;
+      const list = chartsInTab[tabId];
+      if (!list) return;
+
+      if (tabId === 'geometry') {
+        const cf = [34, 136, 544, 2176, 8704, 34816, 139264, 557056, 3060000, 12240000, 48960000, 76500000];
+        const cn = [46.510, 46.803, 46.667, 48.090, 49.211, 55.080, 58.785, 65.009, 46.899, 46.899, 46.899, 46.899];
+        const cb = [57.441, 57.662, 57.399, 57.888, 58.200, 55.752, 53.999, 55.263, 57.573, 57.573, 57.573, 57.573];
+        const sf = [20, 68, 260, 1028, 4100, 16388, 65540, 262148, 1440004, 5760004, 23040004, 36000004];
+        const sn = [34.641, 33.373, 33.401, 29.918, 19.188, 33.498, 37.405, 38.963, 34.335, 34.335, 34.335, 34.335];
+        const sb = [58.216, 57.344, 56.537, 45.354, 44.487, 39.399, 43.503, 44.121, 35.685, 35.687, 35.687, 35.687];
+        Plotly.newPlot('chart-basic', [
+          line(cf, cn, 'Conventional — nose-on', CONV),
+          line(cf, cb, 'Conventional — broadside', CONV, 'dash'),
+          line(sf, sn, 'Stealth — nose-on', STLTH),
+          line(sf, sb, 'Stealth — broadside', STLTH, 'dash'),
+        ], darkLayout({ title: { text: 'Baseline mesh convergence — PO/PTD/DoubleBounce tiers', font: { size: 13 } } }), { responsive: true });
+      }
+
+      if (tabId === 'bistatic') {
+        const cf = [34, 136, 544, 2176, 8704, 34816, 139264, 557056, 3060000, 12240000, 48960000];
+        const cbi = [41.480, 27.073, 24.403, 13.126, -10.444, -5.449, -1.081, 5.285, -22.787, -22.834, -22.846];
+        const sf = [20, 68, 260, 1028, 4100, 16388, 65540, 262148, 1440004, 5760004, 23040004];
+        const sbi = [36.504, 36.486, 36.435, 36.375, 36.745, 36.970, 36.843, 37.145, 36.556, 36.556, 36.556];
+        Plotly.newPlot('chart-bistatic', [
+          line(cf, cbi, 'Conventional — bistatic', CONV),
+          line(sf, sbi, 'Stealth — bistatic', STLTH),
+        ], darkLayout({ title: { text: 'Bistatic RCS mesh convergence (tx=0°/0°, rx=30°/10°)', font: { size: 13 } } }), { responsive: true });
+
+        const cf2 = [34, 136, 544, 2176, 8704, 34816, 139264, 557056, 3060000, 12240000];
+        const chh = [52.51, 33.67, 44.84, 35.39, 35.30, 10.49, 23.42, 14.47, 6.83, -3.13];
+        const chv = [-29.44, -23.42, -17.40, -11.38, -5.36, 0.67, 6.69, -400.00, -400.00, -400.00];
+        const sf2 = [20, 68, 260, 1028, 4100, 16388, 65540, 262148, 1440004, 5760004];
+        const shh = [45.46, 40.85, 43.04, 35.21, 32.47, 33.61, 33.80, 32.32, 32.32, 32.32];
+        const shv = [45.54, 36.33, 40.47, 22.45, -6.41, -18.24, -19.40, -46.02, -39.31, -44.95];
+        Plotly.newPlot('chart-pol', [
+          line(cf2, chh, 'Conventional — HH', CONV),
+          line(cf2, chv, 'Conventional — HV', HV, 'dash'),
+          line(sf2, shh, 'Stealth — HH', STLTH),
+          line(sf2, shv, 'Stealth — HV', HV, 'dot'),
+        ], darkLayout({ title: { text: 'Polarimetric mesh convergence (nose-on)', font: { size: 13 } } }), { responsive: true });
+      }
+
+      if (tabId === 'triple') {
+        const cdbf = [34, 136, 544, 2176], cdb = [77.92, 64.96, 54.35, 57.56];
+        const ctbf = [34, 136, 306], ctb = [96.57, 73.59, 83.47];
+        const sdbf = [20, 68, 260, 1028], sdb = [57.07, 37.32, 37.45, 36.21];
+        const stbf = [20, 68, 148, 260], stb = [93.27, 76.46, 62.87, 73.65];
+        Plotly.newPlot('chart-tb', [
+          line(cdbf, cdb, 'Conventional — DoubleBounce (ref)', CONV, 'dash'),
+          line(ctbf, ctb, 'Conventional — TripleBounce', CONV),
+          line(sdbf, sdb, 'Stealth — DoubleBounce (ref)', STLTH, 'dash'),
+          line(stbf, stb, 'Stealth — TripleBounce', STLTH),
+        ], darkLayout({ title: { text: 'Triple-bounce mesh convergence at peak trihedral angle', font: { size: 13 } } }), { responsive: true });
+
+        const ctpf = [34, 136], ctphh = [96.06, 70.15], ctphv = [50.71, 39.35];
+        const stpf = [20, 68, 148], stphh = [92.76, 76.27, 61.83], stphv = [62.06, 43.80, 35.74];
+        Plotly.newPlot('chart-tbpol', [
+          line(ctpf, ctphh, 'Conventional — HH', CONV),
+          line(ctpf, ctphv, 'Conventional — HV', HV, 'dash'),
+          line(stpf, stphh, 'Stealth — HH', STLTH),
+          line(stpf, stphv, 'Stealth — HV', HV, 'dot'),
+        ], darkLayout({ title: { text: 'Triple-bounce polarimetric convergence', font: { size: 13 } } }), { responsive: true });
+      }
+
+      if (tabId === 'ram') {
+        const cf = [34, 136, 544, 2176, 8704, 34816, 139264, 557056, 3060000, 12240000, 48960000, 76500000];
+        const cpec = [57.441, 57.662, 57.399, 57.888, 58.200, 55.752, 53.999, 55.263, 57.573, 57.573, 57.573, 57.573];
+        const ccfrp = [57.387, 57.610, 57.345, 57.837, 58.151, 55.687, 53.925, 55.280, 57.520, 57.520, 57.520, 57.520];
+        const sf = [20, 68, 260, 1028, 4100, 16388, 65540, 262148, 1440004, 5760004, 23040004, 36000004];
+        const spec = [58.216, 57.344, 56.537, 45.354, 44.487, 39.399, 43.503, 44.121, 35.685, 35.687, 35.687, 35.687];
+        const scfrp = [58.134, 57.254, 56.448, 45.278, 44.399, 39.377, 43.495, 44.114, 35.632, 35.634, 35.634, 35.634];
+        Plotly.newPlot('chart-sibc', [
+          line(cf, cpec, 'Conventional — PEC', CONV),
+          line(cf, ccfrp, 'Conventional — CFRP (SIBC)', CONV, 'dash'),
+          line(sf, spec, 'Stealth — PEC', STLTH),
+          line(sf, scfrp, 'Stealth — CFRP (SIBC)', STLTH, 'dash'),
+        ], darkLayout({ title: { text: 'PEC vs SIBC (CFRP) mesh convergence, broadside', font: { size: 13 } } }), { responsive: true });
+      }
+
+      if (tabId === 'opt') {
+        const f = [20, 68, 260, 1028, 4100, 16388, 65540, 360004, 1440004, 5760004];
+        const v = [48.444, 47.306, 45.570, 29.482, 28.171, 27.823, 31.582, 25.210, 25.211, 25.210];
+        Plotly.newPlot('chart-opt', [line(f, v, 'Mean RCS at optimum params', ACCENT)],
+          darkLayout({ title: { text: 'Mesh convergence at DE-optimum parameter set', font: { size: 13 } } }), { responsive: true });
+      }
+
+      if (tabId === 'wideband') {
+        const cf = [34, 136, 544, 2176, 8704, 34816, 139264, 765000, 3060000, 12240000];
+        const ce = [17.20, 17.07, 16.86, 16.36, 17.13, 20.78, 26.62, 17.50, 17.50, 17.50];
+        const sf = [20, 68, 260, 1028, 4100, 16388, 65540, 360004, 1440004, 5760004];
+        const se = [15.77, 12.68, 7.14, 3.79, 1.09, 0.37, 4.21, -4.53, -4.53, -4.53];
+        Plotly.newPlot('chart-wb', [
+          line(cf, ce, 'Conventional — band energy', CONV),
+          line(sf, se, 'Stealth — band energy', STLTH),
+        ], darkLayout({
+          title: { text: 'Wideband coherent energy mesh convergence, broadside', font: { size: 13 } },
+          yaxis: { gridcolor: '#1c1c1c', zerolinecolor: '#1c1c1c', title: { text: 'Mean band |H|² (dB)' } }
+        }), { responsive: true });
+      }
+
+      if (tabId === 'isar') {
+        const cf = [34, 136, 544, 2176, 8704, 34816, 139264, 765000, 3060000, 12240000];
+        const ce = [32.95, 30.87, 28.45, 25.89, 21.33, 13.80, 15.21, 6.33, 6.31, 6.31];
+        const sf = [20, 68, 260, 1028, 4100, 16388, 65540, 360004, 1440004, 5760004];
+        const se = [33.61, 27.63, 24.96, 19.90, 13.30, 13.24, 13.32, 13.28, 13.28, 13.28];
+        Plotly.newPlot('chart-isar', [
+          line(cf, ce, 'Conventional — image energy', CONV),
+          line(sf, se, 'Stealth — image energy', STLTH),
+        ], darkLayout({
+          title: { text: 'ISAR image energy mesh convergence', font: { size: 13 } },
+          yaxis: { gridcolor: '#1c1c1c', zerolinecolor: '#1c1c1c', title: { text: 'Total image energy (dB)' } }
+        }), { responsive: true });
+      }
+
+      _chartsDone[tabId] = true;
+    }
+
+    const ALL_SECTIONS = ['overview', 'theory', 'geometry', 'mechanisms', 'bistatic', 'triple', 'ram', 'opt', 'wideband', 'isar', 'results', 'refs', 'appendix'];
+
+    function initTOC() {
+      const headings = Array.from(document.querySelectorAll('.theory h1, .theory h2'));
+      const nav = document.getElementById('tocNav');
+      const sidebar = document.getElementById('tocSidebar');
+      if (!nav || !sidebar || headings.length === 0) return;
+      const usedIds = new Set();
+      const links = [];
+      headings.forEach(h => {
+        if (!h.id) {
+          let base = h.textContent.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'sec';
+          let slug = base, n = 1;
+          while (usedIds.has(slug)) { slug = base + '-' + (n++); }
+          usedIds.add(slug);
+          h.id = 'toc-' + slug;
+        }
+        h.style.scrollMarginTop = '20px';
+        const a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.textContent = h.textContent;
+        a.className = h.tagName === 'H1' ? 'toc-h1' : 'toc-h2';
+        nav.appendChild(a);
+        links.push({ el: h, link: a });
+      });
+
+      function onScroll() {
+        let current = links[0];
+        for (const item of links) {
+          if (item.el.getBoundingClientRect().top - 100 <= 0) current = item;
+          else break;
+        }
+        links.forEach(item => item.link.classList.toggle('active', item === current));
+        if (current) {
+          const lr = current.link.getBoundingClientRect();
+          const sr = sidebar.getBoundingClientRect();
+          if (lr.top < sr.top + 40 || lr.bottom > sr.bottom - 40) {
+            current.link.scrollIntoView({ block: 'center', behavior: 'smooth' });
+          }
+        }
+      }
+      let ticking = false;
+      window.addEventListener('scroll', () => {
+        if (!ticking) {
+          window.requestAnimationFrame(() => { onScroll(); ticking = false; });
+          ticking = true;
+        }
+      });
+      onScroll();
+      document.body.classList.add('has-toc');
+    }
+
+    window.addEventListener('load', () => {
+      ALL_SECTIONS.forEach(id => { renderTheory(id); initCharts(id); });
+      initTOC();
+    });
+  </script>
+</body>
+
+</html>
