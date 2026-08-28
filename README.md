@@ -2,35 +2,42 @@
 
 First-principles Python framework for predicting the radar cross section (RCS) of aircraft geometries, comparing a conventional shape against a faceted stealth design. Built for the RVCE Avionics PBL.
 
-## What it does
+<p float="left">
+  <img src="output_ppt/01_geometry/conventional_iso.png" width="45%">
+  <img src="output_ppt/01_geometry/stealth_iso.png" width="45%">
+</p>
 
-Given a triangulated aircraft mesh, the code computes monostatic and bistatic RCS across frequency, azimuth, and elevation by summing physical-optics and diffraction contributions over every facet and edge. It handles six built-in geometries (sphere, flat plate, conventional aircraft, faceted stealth aircraft, flying wing, chined-nose aircraft), applies radar-absorbing material (RAM) coatings, and produces the full set of plots needed to explain *why* a stealth shape reduces RCS rather than just showing that it does.
+## Overview
 
-## Physics / solvers (`solvers.py`)
+Given a triangulated aircraft mesh, the code computes monostatic and bistatic RCS across frequency, azimuth, and elevation by summing physical-optics and diffraction contributions over every facet and edge. It handles six built-in geometries (sphere, flat plate, conventional aircraft, faceted stealth aircraft, flying wing, chined-nose aircraft), applies radar-absorbing material (RAM) coatings, and produces the full set of plots needed to explain *why* a stealth shape reduces RCS rather than just showing that it does: edge alignment, panel canting, mechanism breakdown (PO vs diffraction vs multi-bounce), RAM absorption, wideband/ISAR imaging, and a mesh-convergence study to confirm none of it is a meshing artifact.
+
+## How it works
+
+### Solvers (`solvers.py`)
 
 Four solvers, each building on the last:
 
-- **`POAmplitudeSolver`** — Physical Optics. Integrates induced surface currents (`J = 2n̂ × H_inc`) over illuminated facets, using the standard PO far-field integral. This alone gets specular returns right but misses edge diffraction and multi-bounce.
+- **`POAmplitudeSolver`** — Physical Optics. Integrates induced surface currents `J = 2n̂ × H_inc` over illuminated facets using the standard PO far-field integral. Gets specular returns right but misses edge diffraction and multi-bounce.
 - **`PTDSolver(POAmplitudeSolver)`** — adds Physical Theory of Diffraction, correcting the PO result with edge-diffraction terms (Michaeli/Ufimtsev-style edge waves) so leading/trailing edges and discontinuities scatter correctly.
-- **`DoubleBounce(PTDSolver)`** — adds two-bounce ray tracing for corner reflectors (e.g. wing-fuselage junctions, inlet ducts) — the dominant RCS mechanism for many conventional aircraft features that PO+PTD alone underpredicts.
+- **`DoubleBounce(PTDSolver)`** — adds two-bounce ray tracing for corner reflectors (wing-fuselage junctions, inlet ducts), the dominant RCS mechanism for many conventional aircraft features that PO+PTD alone underpredicts.
 - **`TripleBounce(DoubleBounce)`** — extends to three-bounce paths for deeper cavity-like geometry (inlet ducts, weapon bays).
 
 RAM modeling:
 - **`SIBCMaterial`** — surface impedance boundary condition for lossy coatings, parameterized by conductivity and relative permeability.
 - **`SalisburyScreen`** — single quarter-wave resistive absorber tuned to a center frequency `f0`.
-- **`DallenbachLayer`** — single dielectric absorbing layer (thickness, εr, μr), the more general absorber model, evaluated against carbonyl iron, carbon foam, and ferrite tile parameter sets.
+- **`DallenbachLayer`** — single dielectric absorbing layer (thickness, εr, μr), evaluated against carbonyl iron, carbon foam, and ferrite tile parameter sets.
 
-Validation: the sphere geometry is checked against the analytic **Mie series** (`scipy.special.spherical_jn/yn`) — this is the standard cross-check for any RCS solver since it's one of the few closed-form solutions available.
+Validation: the sphere geometry is checked against the analytic **Mie series** (`scipy.special.spherical_jn/yn`), the standard closed-form cross-check for any RCS solver.
 
-## Geometry (`geometries.py`)
+### Geometry (`geometries.py`)
 
 Meshes are built procedurally (quads subdivided into triangles, welded at shared vertices) rather than imported from CAD:
 - `sphere_mesh`, `flat_plate` — canonical validation shapes
 - `conventional_aircraft` — fuselage + wings + tail, no shaping for RCS reduction
-- `stealth_aircraft(sweep_deg, cant_deg, nose_length)` — faceted design with parameterized edge alignment and canted surfaces (the actual RCS-reduction mechanism: aligning edges to a small number of scatter directions and canting panels away from the radar)
+- `stealth_aircraft(sweep_deg, cant_deg, nose_length)` — faceted design with parameterized edge alignment and canted surfaces, the actual RCS-reduction mechanism: aligning edges to a small number of scatter directions and canting panels away from the radar
 - `flying_wing`, `chined_nose_aircraft` — additional low-observable geometries for comparison
 
-## Other analysis modules
+### Other analysis modules
 
 - `isar_imaging.py` — inverse SAR range-Doppler imaging from the wideband RCS response
 - `wideband_impulse_response.py` — time-domain impulse response from frequency-swept RCS
@@ -49,21 +56,33 @@ python main.py
 
 Each script under `output_ppt/<NN>_<topic>/` is self-contained and can also be run individually, e.g. `python convergence_study.py`.
 
-## Results
+## Usage
 
-**Geometry (conventional vs stealth):**
+Run `main.py` for the full batch, or run any individual module (e.g. `python isar_imaging.py`) to regenerate just that figure set. Output goes to the matching numbered folder under `output_ppt/`.
+
+## Results / validation
+
+**Geometry (conventional vs stealth, iso/front/side/top/wireframe available per shape):**
 
 <p float="left">
-  <img src="output_ppt/01_geometry/conventional_iso.png" width="45%">
-  <img src="output_ppt/01_geometry/stealth_iso.png" width="45%">
+  <img src="output_ppt/01_geometry/conventional_wireframe.png" width="45%">
+  <img src="output_ppt/01_geometry/stealth_wireframe.png" width="45%">
 </p>
 
-**RCS polar pattern, full physics (PO + PTD + double bounce):**
+**RCS polar pattern, full physics (PO + PTD + double bounce) vs PO-only:**
 
 <p float="left">
   <img src="output_ppt/02_rcs_polar/conventional_polar_full.png" width="45%">
   <img src="output_ppt/02_rcs_polar/stealth_polar_full.png" width="45%">
 </p>
+<p float="left">
+  <img src="output_ppt/02_rcs_polar/conventional_polar_PO.png" width="45%">
+  <img src="output_ppt/02_rcs_polar/stealth_polar_PO.png" width="45%">
+</p>
+
+**Sphere validation against analytic Mie series** (the ground-truth check for the solver):
+
+![Sphere Mie validation](output_ppt/02_rcs_polar/sphere_polar_mie.png)
 
 **Az/el RCS heatmap:**
 
@@ -72,37 +91,112 @@ Each script under `output_ppt/<NN>_<topic>/` is self-contained and can also be r
   <img src="output_ppt/03_rcs_heatmap/stealth_heatmap.png" width="45%">
 </p>
 
+**Frequency response, nose-on and broadside:**
+
+<p float="left">
+  <img src="output_ppt/04_frequency/conventional_freq_nose.png" width="45%">
+  <img src="output_ppt/04_frequency/stealth_freq_nose.png" width="45%">
+</p>
+
 **RAM absorption (Salisbury / Dallenbach, multiple materials):**
 
 ![RAM absorption](output_ppt/05_ram/ram_absorption_curves.png)
 
+<p float="left">
+  <img src="output_ppt/05_ram/stealth_with_dallenbach_carbon_foam.png" width="30%">
+  <img src="output_ppt/05_ram/stealth_with_dallenbach_carbonyl_iron.png" width="30%">
+  <img src="output_ppt/05_ram/stealth_with_dallenbach_ferrite_tile.png" width="30%">
+</p>
+
 **Scattering mechanism breakdown** (how much of the return is PO-only vs edge diffraction vs double bounce):
 
 <p float="left">
-  <img src="output_ppt/06_breakdown/conventional_mechanism_double_bounce.png" width="45%">
-  <img src="output_ppt/06_breakdown/stealth_mechanism_double_bounce.png" width="45%">
+  <img src="output_ppt/06_breakdown/conventional_mechanism_po_only.png" width="30%">
+  <img src="output_ppt/06_breakdown/conventional_mechanism_ptd_edge.png" width="30%">
+  <img src="output_ppt/06_breakdown/conventional_mechanism_double_bounce.png" width="30%">
+</p>
+<p float="left">
+  <img src="output_ppt/06_breakdown/stealth_mechanism_po_only.png" width="30%">
+  <img src="output_ppt/06_breakdown/stealth_mechanism_ptd_edge.png" width="30%">
+  <img src="output_ppt/06_breakdown/stealth_mechanism_double_bounce.png" width="30%">
 </p>
 
-**Overlay comparison across all six geometries:**
+**Overlay comparison across all six geometries, and stealth RCS reduction:**
 
 ![Overlay comparison](output_ppt/07_comparison/overlay_polar_all6.png)
-![RCS reduction](output_ppt/07_comparison/reduction_bar_chart.png)
+<p float="left">
+  <img src="output_ppt/07_comparison/reduction_bar_chart.png" width="45%">
+  <img src="output_ppt/07_comparison/ranking_bar_chart.png" width="45%">
+</p>
 
-**Mesh convergence** (confirms results don't depend on facet count):
+**Physics diagrams** (edge classification driving PTD, absorber layer schematics):
 
-![Mesh convergence](output_ppt/10_convergence/mesh_convergence_triple_bounce_polarimetric.png)
+<p float="left">
+  <img src="output_ppt/08_physics_diagrams/conventional_edge_classification.png" width="45%">
+  <img src="output_ppt/08_physics_diagrams/stealth_edge_classification.png" width="45%">
+</p>
+<p float="left">
+  <img src="output_ppt/08_physics_diagrams/salisbury_diagram.png" width="45%">
+  <img src="output_ppt/08_physics_diagrams/dallenbach_diagram.png" width="45%">
+</p>
+
+**Bistatic / polarimetric response:**
+
+<p float="left">
+  <img src="output_ppt/09_bistatic_polarimetric/bistatic_angle_sweep.png" width="45%">
+  <img src="output_ppt/09_bistatic_polarimetric/polarimetric_azimuth.png" width="45%">
+</p>
+
+**Mesh convergence** (confirms results don't depend on facet count, run across basic/bistatic/polarimetric/triple-bounce cases):
+
+<p float="left">
+  <img src="output_ppt/10_convergence/mesh_convergence_basic.png" width="45%">
+  <img src="output_ppt/10_convergence/mesh_convergence_triple_bounce_polarimetric.png" width="45%">
+</p>
+
+**SIBC (coated surface) sweep and mesh convergence:**
+
+<p float="left">
+  <img src="output_ppt/11_sibc/sibc_azimuth_sweep.png" width="45%">
+  <img src="output_ppt/11_sibc/sibc_rcs_reduction_bars.png" width="45%">
+</p>
+
+**Stealth shape optimizer** (sweep/cant angle search to minimize RCS):
+
+<p float="left">
+  <img src="output_ppt/12_optimization/optimizer_baseline_vs_optimized.png" width="45%">
+  <img src="output_ppt/12_optimization/optimizer_landscape_heatmap.png" width="45%">
+</p>
+
+**Wideband response and range profile:**
+
+<p float="left">
+  <img src="output_ppt/13_wideband/wideband_frequency_response.png" width="45%">
+  <img src="output_ppt/13_wideband/wideband_range_profile.png" width="45%">
+</p>
 
 **ISAR range-Doppler image:**
 
 ![ISAR](output_ppt/14_isar/isar_images.png)
 
-The rest of the generated figures (bistatic sweeps, polarimetric signatures, wideband frequency response, optimizer landscape) are under `output_ppt/` in the corresponding numbered folder.
+The rest of the generated figures are under `output_ppt/` in the corresponding numbered folder (14 categories, ~90 PNGs total).
 
 ## Limitations
 
-- PO/PTD/multi-bounce ray methods are high-frequency asymptotic approximations — valid when the target is many wavelengths across. They don't capture resonance effects that show up at low frequency (Rayleigh/resonance regime), which is why the sphere validation against Mie is done specifically to bound where the approximation holds.
-- Geometries are simplified parametric meshes, not real aircraft CAD — absolute RCS numbers are illustrative, not a prediction for any specific real airframe.
+- PO/PTD/multi-bounce ray methods are high-frequency asymptotic approximations, valid when the target is many wavelengths across. They don't capture resonance effects that show up at low frequency (Rayleigh/resonance regime), which is why the sphere validation against Mie is done specifically to bound where the approximation holds.
+- Geometries are simplified parametric meshes, not real aircraft CAD, absolute RCS numbers are illustrative, not a prediction for any specific real airframe.
 - RAM models (Salisbury, Dallenbach) use published material parameter sets, not measured samples.
+
+## Repo layout
+
+```
+solvers.py, geometries.py, main.py, plot_style.py   — core solver + geometry + batch driver
+isar_imaging.py, wideband_impulse_response.py        — imaging/time-domain modules
+sibc_*.py, stealth_optimizer.py, optimizer_*.py      — RAM/optimization studies
+*_convergence*.py                                     — mesh convergence studies
+output_ppt/NN_topic/                                  — generated figures, one folder per topic
+docs/                                                 — report PDFs, poster, legacy presentation.html and an early convergence plot from before output was organized into output_ppt/
+```
 
 ## Write-up
 
