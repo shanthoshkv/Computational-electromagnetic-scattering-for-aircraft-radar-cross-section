@@ -1,0 +1,19 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install numpy scipy matplotlib
+      - run: python -m py_compile *.py
+      - name: Import and single-solve smoke check
+        env:
+          MPLBACKEND: Agg
+        run: python -c "import numpy as np, plot_style; from geometries import sphere_mesh; from solvers import POAmplitudeSolver; V, F = sphere_mesh(1.0); r = POAmplitudeSolver(V, F, 3e9).monostatic_rcs_dbsm(0.0); assert np.isfinite(r), r; print('ok', r)"

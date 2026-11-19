@@ -1,6 +1,16 @@
 # Computational RCS Analysis — Conventional vs Stealth Aircraft
 
-First-principles Python framework for predicting the radar cross section (RCS) of aircraft geometries, comparing a conventional shape against a faceted stealth design. Built for the RVCE Avionics PBL.
+First-principles Python framework predicting aircraft radar cross section with physical optics, edge diffraction and RAM coatings, comparing conventional and stealth shapes.
+
+![demo](docs/demo.gif)
+
+```bash
+git clone https://github.com/shanthoshkv/Computational-electromagnetic-scattering-for-aircraft-radar-cross-section && cd Computational-electromagnetic-scattering-for-aircraft-radar-cross-section && pip install numpy scipy matplotlib
+```
+
+**Live write-up:** https://aboutkvs.vercel.app/rcs_prediction.html
+
+Built for the RVCE Avionics PBL.
 
 <p float="left">
   <img src="output_ppt/01_geometry/conventional_iso.png" width="45%">
